@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* The references use the browser default, not preflight's 1.5. */
+    line-height: normal;
+  }
+  body {
+    @apply m-0 bg-bg font-sans text-ink antialiased;
+  }
+  a {
+    @apply text-primary no-underline hover:text-primary-hover;
+  }
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-card border border-border bg-surface shadow-panel;
+  }
+}
