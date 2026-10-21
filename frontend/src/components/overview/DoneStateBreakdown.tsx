@@ -9,9 +9,27 @@ interface DoneStateBreakdownProps {
 }
 
 const SEGMENTS: { state: DoneState; label: string; bar: string; tile: string; text: string }[] = [
-  { state: 'active', label: 'Activas en el juego', bar: 'bg-done-active-bar', tile: 'bg-done-active-tile', text: 'text-done-active-label' },
-  { state: 'modified', label: 'Modificadas', bar: 'bg-done-modified-bar', tile: 'bg-done-modified-tile', text: 'text-done-modified-label' },
-  { state: 'removed', label: 'Eliminadas', bar: 'bg-done-removed-bar', tile: 'bg-done-removed-tile', text: 'text-done-removed-label' },
+  {
+    state: 'active',
+    label: 'Activas en el juego',
+    bar: 'bg-done-active-bar',
+    tile: 'bg-done-active-tile',
+    text: 'text-done-active-label',
+  },
+  {
+    state: 'modified',
+    label: 'Modificadas',
+    bar: 'bg-done-modified-bar',
+    tile: 'bg-done-modified-tile',
+    text: 'text-done-modified-label',
+  },
+  {
+    state: 'removed',
+    label: 'Eliminadas',
+    bar: 'bg-done-removed-bar',
+    tile: 'bg-done-removed-tile',
+    text: 'text-done-removed-label',
+  },
 ];
 
 /** Stacked bar + one tile per in-game state for finished tasks. */
@@ -32,7 +50,10 @@ export function DoneStateBreakdown({ data }: DoneStateBreakdownProps) {
       </div>
       <div className="grid grid-cols-3 gap-2.5">
         {SEGMENTS.map((s) => (
-          <div key={s.state} className={`flex flex-col items-center gap-0.5 rounded-[10px] px-2 py-2.5 ${s.tile}`}>
+          <div
+            key={s.state}
+            className={`flex flex-col items-center gap-0.5 rounded-[10px] px-2 py-2.5 ${s.tile}`}
+          >
             <span className={`text-center text-[11.5px] font-bold ${s.text}`}>{s.label}</span>
             <span className="text-[26px] font-extrabold">{data[s.state]}</span>
           </div>

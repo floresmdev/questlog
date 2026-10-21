@@ -26,7 +26,9 @@ function CommentBody({ body }: { body: string }) {
 }
 
 export function CommentItem({ comment, showJobTitle }: CommentItemProps) {
-  const meta = [showJobTitle && comment.author.jobTitle, relativeTime(comment.createdAt)].filter(Boolean).join(' · ');
+  const meta = [showJobTitle && comment.author.jobTitle, relativeTime(comment.createdAt)]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <div className="flex gap-2.5">

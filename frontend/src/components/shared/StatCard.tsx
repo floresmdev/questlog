@@ -22,10 +22,22 @@ interface StatCardProps {
   footnoteClass?: string;
 }
 
-export function StatCard({ icon, tone, label, value, valueStyle = 'number', footnote, footnoteClass = 'text-ink-3' }: StatCardProps) {
+export function StatCard({
+  icon,
+  tone,
+  label,
+  value,
+  valueStyle = 'number',
+  footnote,
+  footnoteClass = 'text-ink-3',
+}: StatCardProps) {
   return (
     <Panel className="flex h-[104px] items-center gap-4 px-5 py-[18px]">
-      <div className={`flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-xl ${toneClass[tone]}`}>{icon}</div>
+      <div
+        className={`flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-xl ${toneClass[tone]}`}
+      >
+        {icon}
+      </div>
       <div className="flex min-w-0 flex-col gap-0.5">
         <span className="text-[13.5px] font-semibold text-ink-2">{label}</span>
         <span

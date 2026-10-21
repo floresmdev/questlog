@@ -22,7 +22,8 @@ export function TasksPage() {
 
   // undefined = nothing picked yet → default to the first card in progress; null = panel closed.
   const [pickedId, setPickedId] = useState<Id | null>();
-  const selectedId = pickedId === undefined ? lanes?.find((l) => l.id === 'in_progress')?.tasks[0]?.id : pickedId;
+  const selectedId =
+    pickedId === undefined ? lanes?.find((l) => l.id === 'in_progress')?.tasks[0]?.id : pickedId;
   const { data: detail } = useApi(
     () => (selectedId ? api.getTask(selectedId) : Promise.resolve(undefined)),
     [selectedId],
@@ -85,8 +86,16 @@ export function TasksPage() {
         </div>
 
         <div className="flex h-[700px] gap-5">
-          {lanes && <KanbanBoard lanes={lanes} selectedTaskId={selectedId ?? undefined} onSelectTask={(t) => setPickedId(t.id)} />}
-          {selectedId && detail && <TaskDetailPanel task={detail} onClose={() => setPickedId(null)} />}
+          {lanes && (
+            <KanbanBoard
+              lanes={lanes}
+              selectedTaskId={selectedId ?? undefined}
+              onSelectTask={(t) => setPickedId(t.id)}
+            />
+          )}
+          {selectedId && detail && (
+            <TaskDetailPanel task={detail} onClose={() => setPickedId(null)} />
+          )}
         </div>
 
         <div className="grid h-[220px] grid-cols-3 gap-5">

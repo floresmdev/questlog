@@ -12,14 +12,7 @@ export type ISODateTime = string;
 // ── Enums ────────────────────────────────────────────────────────────────────
 
 export type AreaColorKey =
-  | 'programming'
-  | 'art'
-  | 'design'
-  | 'audio'
-  | 'uiux'
-  | 'qa'
-  | 'animation'
-  | 'narrative';
+  'programming' | 'art' | 'design' | 'audio' | 'uiux' | 'qa' | 'animation' | 'narrative';
 
 export type UserRole = 'admin' | 'member';
 export type AvatarColor = 'blue' | 'violet' | 'pink' | 'teal' | 'orange' | 'red' | 'slate';

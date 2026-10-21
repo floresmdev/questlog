@@ -8,7 +8,11 @@ interface ApiState<T> {
 
 /** Runs an api call on mount (and when `deps` change) and tracks its result. */
 export function useApi<T>(call: () => Promise<T>, deps: DependencyList = []): ApiState<T> {
-  const [state, setState] = useState<ApiState<T>>({ data: undefined, error: undefined, loading: true });
+  const [state, setState] = useState<ApiState<T>>({
+    data: undefined,
+    error: undefined,
+    loading: true,
+  });
 
   useEffect(() => {
     let cancelled = false;

@@ -17,7 +17,10 @@ export function CommentComposer({ onSubmit }: CommentComposerProps) {
   };
 
   return (
-    <form onSubmit={submit} className="flex h-10 shrink-0 items-center gap-2 rounded-[10px] border border-line-control pl-3 pr-1.5">
+    <form
+      onSubmit={submit}
+      className="flex h-10 shrink-0 items-center gap-2 rounded-[10px] border border-line-control pl-3 pr-1.5"
+    >
       <input
         type="text"
         value={body}

@@ -49,7 +49,11 @@ export function TaskCard({ task, selected, onSelect }: TaskCardProps) {
 
       <div className="flex flex-wrap gap-[5px]">
         <AreaTag area={task.area} />
-        {task.doneState ? <DoneStateTag state={task.doneState} /> : <PriorityTag priority={task.priority} />}
+        {task.doneState ? (
+          <DoneStateTag state={task.doneState} />
+        ) : (
+          <PriorityTag priority={task.priority} />
+        )}
       </div>
 
       {task.changeNote && task.doneState !== 'active' && (

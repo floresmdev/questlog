@@ -23,16 +23,25 @@ export function TodayTasks({ items, onToggle }: TodayTasksProps) {
 
   return (
     <Panel className="flex flex-col gap-1.5 px-[22px] py-[18px]">
-      <SectionHeader title="Tareas de hoy" link={{ label: 'Ver todas', to: '/tasks' }} className="mb-1" />
+      <SectionHeader
+        title="Tareas de hoy"
+        link={{ label: 'Ver todas', to: '/tasks' }}
+        className="mb-1"
+      />
       {items.map((item) => (
-        <label key={item.id} className="flex h-[37px] shrink-0 cursor-pointer items-center gap-3 border-b border-line-row text-[13.5px]">
+        <label
+          key={item.id}
+          className="flex h-[37px] shrink-0 cursor-pointer items-center gap-3 border-b border-line-row text-[13.5px]"
+        >
           <input
             type="checkbox"
             checked={done[item.id] ?? false}
             onChange={(e) => toggle(item.id, e.target.checked)}
             className="m-0 h-[18px] w-[18px] shrink-0 accent-primary"
           />
-          <span className={`flex-grow truncate font-semibold ${done[item.id] ? 'text-ink-muted' : 'text-ink'}`}>
+          <span
+            className={`flex-grow truncate font-semibold ${done[item.id] ? 'text-ink-muted' : 'text-ink'}`}
+          >
             {item.title}
           </span>
           <AreaTag area={item.area} size="md" />

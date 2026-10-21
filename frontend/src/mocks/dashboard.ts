@@ -1,4 +1,12 @@
-import type { BoardLane, DoneBreakdown, Id, LaneId, PriorityStats, TaskStats, WeeklyCompletedPoint } from '../api/types';
+import type {
+  BoardLane,
+  DoneBreakdown,
+  Id,
+  LaneId,
+  PriorityStats,
+  TaskStats,
+  WeeklyCompletedPoint,
+} from '../api/types';
 
 // Aggregates the backend will compute with SQL. The board only ships a few
 // cards per lane, so totals can't be derived from mocks/tasks.ts.
@@ -63,7 +71,10 @@ export const weeklyCompleted: WeeklyCompletedPoint[] = [
 
 export const doneBreakdown: DoneBreakdown = { active: 24, modified: 5, removed: 2 };
 
-export const buildHistoryCounts: Record<Id, { integrated: number; modified: number; removed: number; assigned: number }> = {
+export const buildHistoryCounts: Record<
+  Id,
+  { integrated: number; modified: number; removed: number; assigned: number }
+> = {
   'b-091': { integrated: 0, modified: 0, removed: 0, assigned: 4 },
   'b-090': { integrated: 6, modified: 1, removed: 1, assigned: 0 },
   'b-087': { integrated: 5, modified: 2, removed: 0, assigned: 0 },
@@ -74,11 +85,46 @@ export const newInGameCount: Record<Id, number> = { 'b-090': 6 };
 
 /** Today's agenda (times of day aren't in the schema yet). */
 export const agenda = [
-  { id: 'ag-1', title: 'Revisar colisiones del nivel 2', areaId: 'area-qa', assigneeId: 'u-lp', time: '09:00', done: true },
-  { id: 'ag-2', title: 'Exportar sprites del jefe', areaId: 'area-art', assigneeId: 'u-mr', time: '11:30', done: true },
-  { id: 'ag-3', title: 'Integrar pathfinding en la rama', areaId: 'area-prog', assigneeId: 'u-dr', time: '15:00', done: false },
-  { id: 'ag-4', title: 'Playtest interno del nivel 2', areaId: 'area-design', assigneeId: 'u-st', time: '16:30', done: false },
-  { id: 'ag-5', title: 'Mezcla de audio del nivel 1', areaId: 'area-audio', assigneeId: 'u-vg', time: '18:00', done: false },
+  {
+    id: 'ag-1',
+    title: 'Revisar colisiones del nivel 2',
+    areaId: 'area-qa',
+    assigneeId: 'u-lp',
+    time: '09:00',
+    done: true,
+  },
+  {
+    id: 'ag-2',
+    title: 'Exportar sprites del jefe',
+    areaId: 'area-art',
+    assigneeId: 'u-mr',
+    time: '11:30',
+    done: true,
+  },
+  {
+    id: 'ag-3',
+    title: 'Integrar pathfinding en la rama',
+    areaId: 'area-prog',
+    assigneeId: 'u-dr',
+    time: '15:00',
+    done: false,
+  },
+  {
+    id: 'ag-4',
+    title: 'Playtest interno del nivel 2',
+    areaId: 'area-design',
+    assigneeId: 'u-st',
+    time: '16:30',
+    done: false,
+  },
+  {
+    id: 'ag-5',
+    title: 'Mezcla de audio del nivel 1',
+    areaId: 'area-audio',
+    assigneeId: 'u-vg',
+    time: '18:00',
+    done: false,
+  },
 ];
 
 /** Short labels for the "Próximas entregas" list. */

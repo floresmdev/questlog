@@ -15,11 +15,17 @@ export function KanbanLane({ lane, selectedTaskId, onSelectTask }: KanbanLanePro
 
   return (
     <div className={`flex min-h-0 flex-col gap-2 rounded-xl p-2 ${style.lane}`}>
-      <div className={`flex h-10 shrink-0 items-center gap-2 rounded-[9px] px-2.5 ${style.head} ${style.text}`}>
+      <div
+        className={`flex h-10 shrink-0 items-center gap-2 rounded-[9px] px-2.5 ${style.head} ${style.text}`}
+      >
         {lane.id === 'done_active' && <PlayCircleIcon size={16} className="shrink-0" />}
         {lane.id === 'done_changed' && <PencilIcon size={16} className="shrink-0" />}
-        <span className="min-w-0 flex-grow break-words text-[13.5px] font-extrabold leading-tight line-clamp-2">{style.title}</span>
-        <span className="shrink-0 rounded-md bg-surface px-[7px] py-0.5 text-[11px] font-extrabold">{lane.total}</span>
+        <span className="min-w-0 flex-grow break-words text-[13.5px] font-extrabold leading-tight line-clamp-2">
+          {style.title}
+        </span>
+        <span className="shrink-0 rounded-md bg-surface px-[7px] py-0.5 text-[11px] font-extrabold">
+          {lane.total}
+        </span>
         {style.addLabel && (
           <button
             type="button"
@@ -33,7 +39,12 @@ export function KanbanLane({ lane, selectedTaskId, onSelectTask }: KanbanLanePro
 
       <div className="-m-1 flex min-h-0 flex-grow flex-col gap-2 overflow-y-auto p-1">
         {lane.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} selected={task.id === selectedTaskId} onSelect={onSelectTask} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            selected={task.id === selectedTaskId}
+            onSelect={onSelectTask}
+          />
         ))}
       </div>
 

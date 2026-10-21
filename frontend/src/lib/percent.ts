@@ -1,5 +1,6 @@
 /** Width of a proportional bar as a CSS percentage. */
-export const pct = (value: number, max: number) => `${max === 0 ? 0 : Math.round((value / max) * 100)}%`;
+export const pct = (value: number, max: number) =>
+  `${max === 0 ? 0 : Math.round((value / max) * 100)}%`;
 
 /**
  * Whole-number percentages of a total that always add up to 100

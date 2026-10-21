@@ -12,9 +12,21 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 function Summary({ item }: { item: BuildHistoryItem }) {
   const parts = [
-    item.integrated > 0 && <b key="i" className="text-success">+{plural(item.integrated, 'integrada', 'integradas')}</b>,
-    item.modified > 0 && <b key="m" className="text-violet">{plural(item.modified, 'modificada', 'modificadas')}</b>,
-    item.removed > 0 && <b key="r" className="text-danger">{plural(item.removed, 'eliminada', 'eliminadas')}</b>,
+    item.integrated > 0 && (
+      <b key="i" className="text-success">
+        +{plural(item.integrated, 'integrada', 'integradas')}
+      </b>
+    ),
+    item.modified > 0 && (
+      <b key="m" className="text-violet">
+        {plural(item.modified, 'modificada', 'modificadas')}
+      </b>
+    ),
+    item.removed > 0 && (
+      <b key="r" className="text-danger">
+        {plural(item.removed, 'eliminada', 'eliminadas')}
+      </b>
+    ),
   ].filter(Boolean);
   return <>{parts.flatMap((p, i) => (i === 0 ? [p] : [' · ', p]))}</>;
 }
@@ -40,7 +52,10 @@ export function BuildHistory({ items }: BuildHistoryProps) {
               </div>
               <div className={`flex flex-grow flex-col gap-[3px] ${isLast ? '' : 'pb-3'}`}>
                 <div className="flex items-center gap-2">
-                  <BuildChip size="md" colorClass={planned ? 'bg-primary-tint text-primary-hover' : undefined}>
+                  <BuildChip
+                    size="md"
+                    colorClass={planned ? 'bg-primary-tint text-primary-hover' : undefined}
+                  >
                     {buildLabel(item.build)}
                   </BuildChip>
                   <span className="text-xs font-semibold text-ink-muted">
@@ -49,7 +64,11 @@ export function BuildHistory({ items }: BuildHistoryProps) {
                   </span>
                 </div>
                 <span className="text-xs text-ink-2">
-                  {planned ? `${item.assigned} tareas asignadas a esta build` : <Summary item={item} />}
+                  {planned ? (
+                    `${item.assigned} tareas asignadas a esta build`
+                  ) : (
+                    <Summary item={item} />
+                  )}
                 </span>
               </div>
             </div>

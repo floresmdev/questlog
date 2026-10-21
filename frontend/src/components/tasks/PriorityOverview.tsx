@@ -32,7 +32,10 @@ export function PriorityOverview({ stats }: PriorityOverviewProps) {
       <SectionHeader title="Prioridades" size={15} />
       <div className="grid grid-cols-3 gap-2.5">
         {ORDER.map((p) => (
-          <div key={p} className={`flex flex-col items-center gap-0.5 rounded-[10px] p-2.5 ${tileClass[p]}`}>
+          <div
+            key={p}
+            className={`flex flex-col items-center gap-0.5 rounded-[10px] p-2.5 ${tileClass[p]}`}
+          >
             <span className="text-xs font-bold">{priorityLabel[p]}</span>
             <span className="text-[26px] font-extrabold text-ink">{stats[p]}</span>
           </div>

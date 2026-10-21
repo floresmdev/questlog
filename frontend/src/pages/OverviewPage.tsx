@@ -101,7 +101,12 @@ export function OverviewPage() {
         <div className="grid h-[262px] grid-cols-2 gap-5">
           {agenda && <TodayTasks items={agenda} />}
           <Panel className="flex gap-[22px] px-[22px] py-[18px]">
-            <MiniCalendar month={month} today={APP_NOW} events={events ?? []} onMonthChange={setMonth} />
+            <MiniCalendar
+              month={month}
+              today={APP_NOW}
+              events={events ?? []}
+              onMonthChange={setMonth}
+            />
             {deadlines && <UpcomingDeadlines items={deadlines} />}
           </Panel>
         </div>

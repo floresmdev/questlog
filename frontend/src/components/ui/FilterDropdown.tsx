@@ -7,7 +7,11 @@ interface FilterDropdownProps {
 }
 
 /** Outlined button with a chevron; opens a filter menu (menu not built yet). */
-export function FilterDropdown({ label, onClick, className = 'h-[34px] text-[12.5px]' }: FilterDropdownProps) {
+export function FilterDropdown({
+  label,
+  onClick,
+  className = 'h-[34px] text-[12.5px]',
+}: FilterDropdownProps) {
   return (
     <button
       type="button"

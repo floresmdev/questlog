@@ -48,7 +48,11 @@ export function WeeklyCompletedChart({ points }: WeeklyCompletedChartProps) {
             role="img"
             aria-label={`Tareas terminadas por semana: ${points.map((p) => p.count).join(', ')}`}
           >
-            <path d={gridY.map((y) => `M-8 ${y}H${W + 8}`).join('')} stroke="#EEF1F6" strokeWidth="1" />
+            <path
+              d={gridY.map((y) => `M-8 ${y}H${W + 8}`).join('')}
+              stroke="#EEF1F6"
+              strokeWidth="1"
+            />
             <path d={`M-8 ${BOTTOM}H${W + 8}`} stroke="#D9DEE8" strokeWidth="1" />
             <path d={area} fill="#2563EB" fillOpacity="0.1" />
             <path d={line} fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinejoin="round" />

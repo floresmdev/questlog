@@ -18,7 +18,13 @@ const sizeClass = {
 };
 
 /** Monospace chip for task IDs and build numbers. */
-export function BuildChip({ children, size = 'sm', withIcon, colorClass = 'bg-chip text-ink-2', className = '' }: BuildChipProps) {
+export function BuildChip({
+  children,
+  size = 'sm',
+  withIcon,
+  colorClass = 'bg-chip text-ink-2',
+  className = '',
+}: BuildChipProps) {
   return (
     <span
       className={`inline-flex items-center gap-[5px] whitespace-nowrap font-mono font-semibold ${sizeClass[size]} ${colorClass} ${className}`}

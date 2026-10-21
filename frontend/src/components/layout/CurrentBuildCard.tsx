@@ -19,7 +19,8 @@ export function CurrentBuildCard({ current: { build, newInGameCount } }: Current
         </div>
       </div>
       <span className="text-xs leading-[1.45] text-ink-3">
-        Integrada el {build.releasedAt && shortDate(build.releasedAt)} · {newInGameCount} tareas nuevas en el juego
+        Integrada el {build.releasedAt && shortDate(build.releasedAt)} · {newInGameCount} tareas
+        nuevas en el juego
       </span>
       <a
         href="#changelog"

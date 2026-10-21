@@ -25,24 +25,39 @@ export function MiniCalendar({ month, today, events, onMonthChange }: MiniCalend
   for (const e of events) {
     if (eventByDay.get(e.date) !== 'due') eventByDay.set(e.date, e.kind);
   }
-  const shift = (delta: number) => onMonthChange?.(new Date(month.getFullYear(), month.getMonth() + delta, 1));
-  const navButton = 'flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-ink-2 hover:bg-hover';
+  const shift = (delta: number) =>
+    onMonthChange?.(new Date(month.getFullYear(), month.getMonth() + delta, 1));
+  const navButton =
+    'flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-ink-2 hover:bg-hover';
 
   return (
     <div className="flex flex-grow flex-col gap-1.5">
       <div className="flex items-center gap-2">
         <h2 className="m-0 flex-grow text-base font-extrabold text-ink">Calendario</h2>
-        <button type="button" aria-label="Mes anterior" className={navButton} onClick={() => shift(-1)}>
+        <button
+          type="button"
+          aria-label="Mes anterior"
+          className={navButton}
+          onClick={() => shift(-1)}
+        >
           <ChevronLeftIcon size={14} />
         </button>
         <span className="text-[13.5px] font-bold">{monthTitle(month)}</span>
-        <button type="button" aria-label="Mes siguiente" className={navButton} onClick={() => shift(1)}>
+        <button
+          type="button"
+          aria-label="Mes siguiente"
+          className={navButton}
+          onClick={() => shift(1)}
+        >
           <ChevronRightIcon size={14} />
         </button>
       </div>
       <div className="grid grid-cols-7 gap-y-[3px]">
         {WEEKDAYS.map((d) => (
-          <span key={d} className="flex h-7 items-center justify-center text-[11px] font-semibold text-ink-muted">
+          <span
+            key={d}
+            className="flex h-7 items-center justify-center text-[11px] font-semibold text-ink-muted"
+          >
             {d}
           </span>
         ))}
@@ -59,7 +74,11 @@ export function MiniCalendar({ month, today, events, onMonthChange }: MiniCalend
             >
               {isToday && <span className="absolute h-7 w-7 rounded-full bg-primary" />}
               <span className="relative">{d.getDate()}</span>
-              {event && <span className={`absolute -bottom-px h-[5px] w-[5px] rounded-full ${dotClass[event]}`} />}
+              {event && (
+                <span
+                  className={`absolute -bottom-px h-[5px] w-[5px] rounded-full ${dotClass[event]}`}
+                />
+              )}
             </span>
           );
         })}

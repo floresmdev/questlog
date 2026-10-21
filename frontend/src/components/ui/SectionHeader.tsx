@@ -14,10 +14,18 @@ interface SectionHeaderProps {
 
 const sizeClass = { 15: 'text-[15px]', 16: 'text-base', 17: 'text-[17px]' };
 
-export function SectionHeader({ title, size = 16, link, children, className = '' }: SectionHeaderProps) {
+export function SectionHeader({
+  title,
+  size = 16,
+  link,
+  children,
+  className = '',
+}: SectionHeaderProps) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <h2 className={`m-0 flex-grow whitespace-nowrap font-extrabold text-ink ${sizeClass[size]}`}>{title}</h2>
+      <h2 className={`m-0 flex-grow whitespace-nowrap font-extrabold text-ink ${sizeClass[size]}`}>
+        {title}
+      </h2>
       {children}
       {link &&
         (link.to.startsWith('/') ? (

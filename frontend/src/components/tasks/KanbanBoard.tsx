@@ -17,7 +17,13 @@ export function KanbanBoard({ lanes, selectedTaskId, onSelectTask }: KanbanBoard
   return (
     <Panel as="section" className="flex min-w-0 flex-grow flex-col gap-4 p-5">
       <SectionHeader title="Tablero Kanban" size={17} className="flex-wrap gap-y-2">
-        <KanbanFilters areaLabel="Todas" assigneeLabel="Todos" buildLabel="Todas" view={view} onViewChange={setView} />
+        <KanbanFilters
+          areaLabel="Todas"
+          assigneeLabel="Todos"
+          buildLabel="Todas"
+          view={view}
+          onViewChange={setView}
+        />
       </SectionHeader>
 
       {/* Lanes keep a usable width; below ~1280px viewports the board scrolls sideways. */}
@@ -30,7 +36,12 @@ export function KanbanBoard({ lanes, selectedTaskId, onSelectTask }: KanbanBoard
             <span className="h-px min-w-3 flex-grow bg-lane-active-rule" />
           </div>
           {lanes.map((lane) => (
-            <KanbanLane key={lane.id} lane={lane} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />
+            <KanbanLane
+              key={lane.id}
+              lane={lane}
+              selectedTaskId={selectedTaskId}
+              onSelectTask={onSelectTask}
+            />
           ))}
         </div>
       </div>

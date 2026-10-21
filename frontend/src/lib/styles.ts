@@ -1,4 +1,12 @@
-import type { AreaColorKey, AvatarColor, DoneState, HighlightTone, LaneId, Priority, TaskStatus } from '../api/types';
+import type {
+  AreaColorKey,
+  AvatarColor,
+  DoneState,
+  HighlightTone,
+  LaneId,
+  Priority,
+  TaskStatus,
+} from '../api/types';
 
 // Full class strings (not interpolated) so Tailwind can see them.
 
@@ -13,7 +21,11 @@ export const areaTagClass: Record<AreaColorKey, string> = {
   narrative: 'bg-area-narrative-bg text-area-narrative-text',
 };
 
-export const priorityLabel: Record<Priority, string> = { high: 'Alta', medium: 'Media', low: 'Baja' };
+export const priorityLabel: Record<Priority, string> = {
+  high: 'Alta',
+  medium: 'Media',
+  low: 'Baja',
+};
 
 export const priorityTagClass: Record<Priority, string> = {
   high: 'bg-priority-high-bg text-priority-high-text',
@@ -103,4 +115,3 @@ export const laneStyle: Record<LaneId, LaneStyle> = {
     moreHref: '#modificadas',
   },
 };
-

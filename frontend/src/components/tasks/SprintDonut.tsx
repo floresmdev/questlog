@@ -18,7 +18,14 @@ export function SprintDonut({ sprint }: SprintDonutProps) {
 
   return (
     <Panel className="flex h-[104px] items-center gap-4 px-5 py-3.5">
-      <svg width="72" height="72" viewBox="0 0 72 72" className="shrink-0" role="img" aria-label={`Progreso del sprint: ${sprint.done}% terminado`}>
+      <svg
+        width="72"
+        height="72"
+        viewBox="0 0 72 72"
+        className="shrink-0"
+        role="img"
+        aria-label={`Progreso del sprint: ${sprint.done}% terminado`}
+      >
         <circle cx="36" cy="36" r={R} fill="none" stroke="#EEF1F6" strokeWidth="10" />
         {segments.map((s) => {
           const length = (s.value / 100) * CIRCUMFERENCE;
@@ -39,7 +46,15 @@ export function SprintDonut({ sprint }: SprintDonutProps) {
           offset += length;
           return circle;
         })}
-        <text x="36" y="40" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827" fontFamily="Plus Jakarta Sans Variable, sans-serif">
+        <text
+          x="36"
+          y="40"
+          textAnchor="middle"
+          fontSize="13"
+          fontWeight="800"
+          fill="#111827"
+          fontFamily="Plus Jakarta Sans Variable, sans-serif"
+        >
           {sprint.done}%
         </text>
       </svg>

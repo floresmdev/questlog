@@ -79,7 +79,9 @@ export const mockApi: QuestlogApi = {
       (t) =>
         (!filters.areaId || t.areaId === filters.areaId) &&
         (!filters.assigneeId || t.assigneeId === filters.assigneeId) &&
-        (!filters.buildId || t.targetBuildId === filters.buildId || t.integratedBuildId === filters.buildId),
+        (!filters.buildId ||
+          t.targetBuildId === filters.buildId ||
+          t.integratedBuildId === filters.buildId),
     );
     return LANES.map((id) => ({
       id,
@@ -165,13 +167,15 @@ export const mockApi: QuestlogApi = {
         detail: 'Integración',
       }));
     // Stable sort keeps tasks ahead of builds on the same day.
-    return [...taskDeadlines, ...buildDeadlines].sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
+    return [...taskDeadlines, ...buildDeadlines]
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, limit);
   },
 
   async getBuildHistory(limit) {
-    return builds.slice(0, limit).map(
-      (b): BuildHistoryItem => ({ build: b, ...buildHistoryCounts[b.id] }),
-    );
+    return builds
+      .slice(0, limit)
+      .map((b): BuildHistoryItem => ({ build: b, ...buildHistoryCounts[b.id] }));
   },
   async getDoneBreakdown() {
     return doneBreakdown;

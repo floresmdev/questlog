@@ -4,7 +4,12 @@ export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'children'> {
   size?: number;
 }
 
-function Svg({ size = 24, strokeWidth = 1.8, children, ...rest }: IconProps & { children: ReactNode }) {
+function Svg({
+  size = 24,
+  strokeWidth = 1.8,
+  children,
+  ...rest
+}: IconProps & { children: ReactNode }) {
   return (
     <svg
       width={size}

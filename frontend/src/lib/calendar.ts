@@ -10,5 +10,8 @@ export function monthGrid(month: Date): Date[] {
   const start = new Date(first);
   start.setDate(1 - first.getDay());
   const cells = Math.ceil((first.getDay() + last.getDate()) / 7) * 7;
-  return Array.from({ length: cells }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+  return Array.from(
+    { length: cells },
+    (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i),
+  );
 }

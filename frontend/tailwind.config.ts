@@ -71,9 +71,27 @@ export default {
 
         // Done-state badges: bg / text
         done: {
-          active: { bg: '#DCFCE7', text: '#15803D', tile: '#DDF3E4', bar: '#16A34A', label: '#14532D' },
-          modified: { bg: '#EDE9FE', text: '#6D28D9', tile: '#EDE7FB', bar: '#7C3AED', label: '#4C1D95' },
-          removed: { bg: '#FEE2E2', text: '#B91C1C', tile: '#FDE8E8', bar: '#DC2626', label: '#991B1B' },
+          active: {
+            bg: '#DCFCE7',
+            text: '#15803D',
+            tile: '#DDF3E4',
+            bar: '#16A34A',
+            label: '#14532D',
+          },
+          modified: {
+            bg: '#EDE9FE',
+            text: '#6D28D9',
+            tile: '#EDE7FB',
+            bar: '#7C3AED',
+            label: '#4C1D95',
+          },
+          removed: {
+            bg: '#FEE2E2',
+            text: '#B91C1C',
+            tile: '#FDE8E8',
+            bar: '#DC2626',
+            label: '#991B1B',
+          },
         },
 
         // "Próximas entregas" cards: border / bg / text

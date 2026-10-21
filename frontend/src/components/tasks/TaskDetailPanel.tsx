@@ -30,10 +30,16 @@ function DaysLeft({ due }: { due: string }) {
 
 export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
   return (
-    <Panel as="aside" aria-label="Detalle de tarea" className="flex w-[330px] shrink-0 flex-col gap-3.5 p-5">
+    <Panel
+      as="aside"
+      aria-label="Detalle de tarea"
+      className="flex w-[330px] shrink-0 flex-col gap-3.5 p-5"
+    >
       {/* Pinned header */}
       <div className="flex shrink-0 items-center gap-2">
-        <span className="flex-grow text-xs font-bold tracking-[0.4px] text-ink-muted">DETALLE DE TAREA</span>
+        <span className="flex-grow text-xs font-bold tracking-[0.4px] text-ink-muted">
+          DETALLE DE TAREA
+        </span>
         <BuildChip>{task.code}</BuildChip>
         <button
           type="button"
@@ -66,7 +72,8 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
             <AreaTag area={task.area} size="detail" />
           </TaskFieldRow>
           <TaskFieldRow label="Fechas">
-            {shortDate(task.startDate)} <span className="text-ink-faint">→</span> {shortDate(task.dueDate)}
+            {shortDate(task.startDate)} <span className="text-ink-faint">→</span>{' '}
+            {shortDate(task.dueDate)}
             {task.status !== 'done' && <DaysLeft due={task.dueDate} />}
           </TaskFieldRow>
           <TaskFieldRow label="Build">
@@ -74,7 +81,9 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
               <BuildChip size="detail">{buildLabel(task.integratedBuild)}</BuildChip>
             ) : (
               <>
-                {task.targetBuild && <BuildChip size="detail">{task.targetBuild.version} · objetivo</BuildChip>}
+                {task.targetBuild && (
+                  <BuildChip size="detail">{task.targetBuild.version} · objetivo</BuildChip>
+                )}
                 <span className="text-[11px] font-medium text-ink-muted">sin integrar</span>
               </>
             )}
@@ -88,7 +97,9 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
 
         <div className="flex flex-col gap-2.5 border-t border-line-divider pt-3">
           <div className="flex items-center">
-            <span className="flex-grow text-[13px] font-extrabold text-ink">Comentarios ({task.commentCount})</span>
+            <span className="flex-grow text-[13px] font-extrabold text-ink">
+              Comentarios ({task.commentCount})
+            </span>
             <a href="#comentarios" className="text-xs font-bold">
               Ver todos
             </a>
