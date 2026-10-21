@@ -4,7 +4,7 @@ Stack, commands, Node version: [README.md](README.md). Root rules: [../CLAUDE.md
 
 ## src/ map
 
-- `main.tsx` — mounts `<App>` in `BrowserRouter`.
+- `main.tsx` — imports fonts, mounts `<App>` in `BrowserRouter`.
 - `App.tsx` — routes: `/overview`, `/tasks`, `*` → `/overview`; all under `AppLayout`.
 - `api/` — data access layer (see below). `types.ts` mirrors HANDOFF §3, camelCased (not yet updated to the final §3 schema).
 - `mocks/` — sample data from the design refs. `dashboard.ts` = pre-aggregated stats.
@@ -31,7 +31,7 @@ Stack, commands, Node version: [README.md](README.md). Root rules: [../CLAUDE.md
 - Tailwind only. Tokens in `tailwind.config.ts` (from HANDOFF §2 + extra greys/tints from the refs): `bg`, `surface`, `ink-*`, `primary-*`, `lane-*`, `area-*`, `priority-*`, `done-*`, `avatar-*`, radii `rounded-card` / `rounded-task`.
 - Enum → class/label maps live in `lib/styles.ts` (`areaTagClass`, `priorityTagClass`, `laneStyle`, …). Use full literal class strings — never interpolate (Tailwind purge).
 - Pixel values from the refs are fine as arbitrary values (`px-[18px]`).
-- Fonts: Plus Jakarta Sans / JetBrains Mono, currently via Google Fonts in `index.html` — to be self-hosted with `@fontsource-variable/*` (phase 1.5). Never add third-party runtime requests.
+- Fonts: Plus Jakarta Sans / JetBrains Mono, self-hosted via `@fontsource-variable/*` imported in `main.tsx` (Tailwind names: `"Plus Jakarta Sans Variable"`, `"JetBrains Mono Variable"`). Never add third-party runtime requests.
 
 ## Time
 

@@ -53,3 +53,8 @@ Format: `## NNN · YYYY-MM-DD · title` → Decision / Why / Rejected.
 - **Decision:** Fonts and assets are bundled and served by our nginx; Google Fonts goes away in phase 1.5.
 - **Why:** Privacy for the client's users, works under a strict CSP (`default-src 'self'; font-src 'self'`), and the app doesn't depend on another service being up.
 - **Rejected:** Google Fonts CDN (third-party request on every load, needs CSP exceptions).
+
+## 011 · 2026-10-21 · ESLint + Prettier, TypeScript pinned to 6.0
+- **Decision:** ESLint flat config with typescript-eslint, react-hooks and react-refresh; Prettier for formatting (`singleQuote`, `printWidth: 100`). TypeScript downgraded from 7.0 to `~6.0`.
+- **Why:** typescript-eslint needs TypeScript's JS compiler API, which TS 7 (native port) doesn't ship; its peer range is `<6.1`. ESLint is the standard setup and the backend will share it. TS 7's speed doesn't matter at this size. Width 100 matches the existing code (long Tailwind class lines) and minimizes churn.
+- **Rejected:** oxlint (no TS dependency, but less common and fewer plugins); Biome (replaces Prettier too, least standard). Revisit TS 7 when typescript-eslint supports it.

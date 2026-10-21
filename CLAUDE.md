@@ -31,7 +31,10 @@ Run in `frontend/` (Node 20.19+):
 - `npm install`
 - `npm run dev` — http://localhost:5173, proxies `/api` → `localhost:3000`
 - `npm run build` — `tsc -b` + `vite build` → `frontend/dist/`
-- `npm run typecheck` — no linter configured yet; this is the only check
+- `npm run lint` — ESLint (typescript-eslint, react-hooks, react-refresh)
+- `npm run typecheck` — `tsc -b` (TypeScript pinned to ~6.0, ADR 011)
+- `npm run format` / `npm run format:check` — Prettier
+- Before committing: `npm run lint && npm run typecheck && npm run format:check`
 - `npm run preview` — serve the built `dist/`
 
 ## Conventions
