@@ -39,7 +39,7 @@ export function SprintDonut({ sprint }: SprintDonutProps) {
           offset += length;
           return circle;
         })}
-        <text x="36" y="40" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827" fontFamily="Plus Jakarta Sans, sans-serif">
+        <text x="36" y="40" textAnchor="middle" fontSize="13" fontWeight="800" fill="#111827" fontFamily="Plus Jakarta Sans Variable, sans-serif">
           {sprint.done}%
         </text>
       </svg>
