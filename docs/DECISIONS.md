@@ -33,3 +33,23 @@ Format: `## NNN · YYYY-MM-DD · title` → Decision / Why / Rejected.
 - **Decision:** `frontend/src/lib/now.ts` exports `APP_NOW` = 2026-09-28 16:20 (when the mocks were drawn); all relative dates use it.
 - **Why:** Mock data has fixed dates; with `new Date()` "hace 2 h", the calendar and "today" would drift from the references.
 - **Rejected:** `new Date()` now (UI wrong against mocks); shifting mock dates relative to now (noisy, hard to compare with refs). Switch to `new Date()` when real data lands.
+
+## 007 · 2026-10-21 · Final data model
+- **Decision:** HANDOFF §3 replaced by the final schema: `users.job_title` (nullable) and `is_active`; `builds.build_number` nullable plus `planned_for` (a build in preparation has no number and no `released_at`); `tasks.due_date` → `due_at timestamptz`; `activity_log` stores structured events (`action` + `payload`) and the client renders the Spanish sentence; `sessions` table for phase 2b; `CHECK ((status = 'done') = (done_state IS NOT NULL))`; indexes listed in §3. Every FK points at `users` (no `profiles`).
+- **Why:** Resolves the four open questions from phase 1: the UI shows job titles, times of day on the agenda and builds in preparation. Keeping activity structured lets copy differ per screen and keeps UI language out of the DB.
+- **Rejected:** A separate `due_time` column (two columns for one instant); overloading `released_at` as a planned date (ambiguous); storing rendered sentences in `activity_log` (copy changes would need data migrations).
+
+## 008 · 2026-10-21 · Backend stack
+- **Decision:** Node LTS + Express 5 + TypeScript strict (`tsx` in dev); `pg` with a small query helper, no ORM; `node-pg-migrate` with plain SQL migrations; `zod` for request and env validation; `pino` for logs; `helmet`. Vitest + Supertest against a dedicated test database.
+- **Why:** Plain SQL keeps the schema, constraints and aggregates (stats endpoints) visible and reviewable; few dependencies; env validated at startup fails fast on misconfiguration.
+- **Rejected:** Prisma/TypeORM (hides SQL, extra codegen/runtime); NestJS (heavy for this size); mocking the DB in tests (misses constraint and SQL bugs).
+
+## 009 · 2026-10-21 · Server-side sessions, not JWT
+- **Decision:** argon2id password hashes; sessions stored in the `sessions` table, referenced by an `httpOnly`, `SameSite=Lax` cookie (`Secure` in prod). Logout deletes the session. Rate-limited login; failed logins logged in a parseable format. Roles `admin` / `member` enforced in middleware.
+- **Why:** Same-origin SPA behind one nginx, so cookies just work; sessions are revocable instantly and auditable (ip, user agent); no token kept in JS-readable storage.
+- **Rejected:** JWT in localStorage (XSS-readable, no real logout); stateless JWT cookies (revocation needs a denylist anyway).
+
+## 010 · 2026-10-21 · No third-party runtime requests from the browser
+- **Decision:** Fonts and assets are bundled and served by our nginx; Google Fonts goes away in phase 1.5.
+- **Why:** Privacy for the client's users, works under a strict CSP (`default-src 'self'; font-src 'self'`), and the app doesn't depend on another service being up.
+- **Rejected:** Google Fonts CDN (third-party request on every load, needs CSP exceptions).

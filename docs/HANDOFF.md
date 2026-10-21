@@ -20,7 +20,7 @@ The `.html` references are written in a proprietary canvas format (`<x-dc>`, `<s
 Internet ──443──> [nginx]  serves the Vite static build + reverse-proxies /api
                      │  (docker network: backend_net, internal)
                      ▼
-                  [api]    Node.js + Express (REST, JWT/session auth, business logic)
+                  [api]    Node.js + Express 5 + TypeScript (REST, server-side sessions, business logic)
                      │
                      ▼
                   [db]     PostgreSQL 16 — named volume `pgdata`, never exposed publicly
@@ -34,15 +34,15 @@ Monorepo layout:
 /infra      nginx/*.conf, scripts/ (backup.sh, restore.sh), compose overrides
 /docs       HANDOFF.md, design/, runbook.md, architecture.md
 docker-compose.yml          (base)
-docker-compose.dev.yml      (hot reload, db port exposed to localhost only)
-docker-compose.prod.yml     (TLS, restart policies, no exposed db)
+docker-compose.dev.yml      (hot reload, db/api published on 127.0.0.1 only)
+docker-compose.prod.yml     (TLS, restart policies, only nginx publishes 80/443)
 ```
 
-The frontend must talk to the backend ONLY through `frontend/src/api/` (a typed fetch client against `/api/*`). No direct DB or third-party BaaS SDKs in the frontend.
+The frontend must talk to the backend ONLY through `frontend/src/api/` (a typed fetch client against `/api/*`). No direct DB or third-party BaaS SDKs in the frontend, and no third-party runtime requests from the browser (fonts and assets are self-hosted).
 
 ## 2. Design tokens
 
-**Font:** `Plus Jakarta Sans` (400/500/600/700/800) for the UI; `JetBrains Mono` (500/600) for task IDs and build numbers (`QL-142`, `v0.9.0 · #214`).
+**Font:** `Plus Jakarta Sans` (400/500/600/700/800) for the UI; `JetBrains Mono` (500/600) for task IDs and build numbers (`QL-142`, `v0.9.0 · #214`). Both are self-hosted (`@fontsource-variable/*`), never loaded from Google Fonts.
 
 | Token | Value | Use |
 |---|---|---|
@@ -74,24 +74,36 @@ Each task has: assignee + area, description, status (pending / in progress / don
 
 ```
 areas        (id, name, color_key)
-users        (id, email unique, password_hash, full_name, role enum('admin','member'), initials, avatar_color, created_at)
-builds       (id, version text, build_number int, released_at date null, notes text)
+users        (id, email unique, password_hash, full_name, job_title null,
+              role enum('admin','member'), initials, avatar_color,
+              is_active bool default true, created_at)
+builds       (id, version text, build_number int null, planned_for date null,
+              released_at timestamptz null, notes text)
+              -- build in preparation: build_number null, released_at null
 tasks        (id, code text unique 'QL-###', title, description,
-              area_id → areas, assignee_id → profiles,
+              area_id → areas, assignee_id → users null,
               status enum('pending','in_progress','done'),
-              done_state enum('active','modified','removed') null   -- only when status='done'
-              change_note text null,                                -- why it was modified/removed
+              done_state enum('active','modified','removed') null,  -- only when status='done'
+              change_note text null,                               -- why it was modified/removed
               priority enum('high','medium','low'),
-              start_date date, due_date date, completed_at timestamptz null,
+              start_date date null, due_at timestamptz null,       -- due_at carries the agenda time
+              completed_at timestamptz null,
               target_build_id → builds null,     -- build it is planned for
               integrated_build_id → builds null, -- build where it landed
               position int,                      -- order inside a lane
-              created_by, created_at, updated_at)
-comments     (id, task_id → tasks, author_id → profiles, body, created_at)
-activity_log (id, task_id, actor_id, action text, payload jsonb, created_at)
+              created_by → users, created_at, updated_at)
+comments     (id, task_id → tasks ON DELETE CASCADE, author_id → users, body, created_at)
+activity_log (id, task_id → tasks null, actor_id → users, action text,
+              payload jsonb, created_at)
+              -- structured events only; the frontend renders the Spanish sentence
+sessions     (id, user_id → users, created_at, expires_at, ip, user_agent)   -- phase 2b
 ```
 
-Constraint: `done_state IS NULL` unless `status = 'done'`; `done_state` is required when `status = 'done'`.
+Constraint: `CHECK ((status = 'done') = (done_state IS NOT NULL))`.
+
+Business rules (enforced in the API, phase 2b): `integrated_build_id` is required for `done_state = 'active'`; `change_note` is required for `modified` / `removed`.
+
+Indexes: `tasks(status, done_state)`, `tasks(assignee_id)`, `tasks(area_id)`, `tasks(due_at)`, `comments(task_id)`, `activity_log(created_at DESC)`.
 
 **Kanban lanes are derived:** Pending = `status='pending'`; In progress = `status='in_progress'`; Active in game = `done` + `active`; Modified/Removed = `done` + (`modified` | `removed`).
 
