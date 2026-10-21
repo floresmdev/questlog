@@ -338,3 +338,75 @@ Never claim high availability, scale or numbers that were not measured.
 - Offsite backup target: S3 vs Backblaze B2.
 - Domain name.
 - Whether a sanitized public copy of the repo will be published later (requires the client's approval).
+
+---
+
+## 11. Design decisions & rationale (my reasoning)
+
+The short, formal record of each decision is in `docs/DECISIONS.md`. This section is the longer explanation in my own words: what I chose, how it works, and why I can defend it.
+
+### System design
+
+**Three tiers, each with one job.** nginx is the only thing facing the internet: it terminates TLS, serves the static frontend build and forwards `/api` to the API. The API holds all business rules and is the only process that talks to the database. PostgreSQL holds the data and nothing else. Because every request goes through one entry point, I only harden, log and rate-limit in one place, and the database has no network path from the outside at all.
+
+**Same origin for the frontend and the API.** The browser loads the app and calls `/api` on the same domain, through the same nginx. That removes CORS completely, lets me use plain cookies for sessions, and lets me ship a strict CSP (`default-src 'self'`), because the page never needs to talk to another origin.
+
+**Docker Compose on one server, not Kubernetes.** The load is one small studio. Compose gives me reproducible environments, health checks, restart policies and isolated networks, which is everything I need at this size. Kubernetes would add a control plane to operate without solving a problem I have. I also don't call a single server "highly available": a single server is a single point of failure. What I do instead is make recovery fast and tested (backups, a timed restore drill, automatic restarts, monitoring).
+
+**Network exposure is a deliberate decision, not a default.** In development I publish `db` and `api` only on `127.0.0.1`, so they're reachable from my machine but not from my LAN. Publishing a port as `5432:5432` binds to `0.0.0.0` and exposes the database to every network the machine is on. In production `db` and `api` publish no ports at all; containers reach each other by service name on an internal Docker network, and only nginx publishes 80/443. The cloud security group and ufw repeat the same rule at two more layers (defense in depth).
+
+**Health checks drive startup order.** `depends_on` alone only waits for the container to start, not for Postgres to accept connections. I use `condition: service_healthy` with `pg_isready`, and `GET /api/health` returns 200 only if the API can actually query the database. That same endpoint is what uptime monitoring and the deploy script check before declaring a release good.
+
+**Data lives in a named volume, not in the container.** Containers are disposable; `pgdata` is not. `docker compose down` removes the containers and keeps the data, `down -v` deletes the volume too. Knowing that difference is the line between a restart and data loss.
+
+### Data model
+
+**Kanban lanes are derived, not stored.** A task has a `status` (pending / in progress / done) and, only when done, a `done_state` (active / modified / removed). The four lanes are just queries over those two columns. Storing a separate "lane" column would create two sources of truth that can disagree.
+
+**The database enforces the core invariant.** `CHECK ((status = 'done') = (done_state IS NOT NULL))` makes it impossible to save a done task without a done state, or a pending task with one, whatever bug the API has. Rules that depend on context (an *active* task needs the build it was integrated in; a *modified/removed* task needs a change note) are validated in the API, where I can return a clear error message.
+
+**One timestamp instead of a date plus a time.** `due_at timestamptz` stores an exact instant in UTC; the frontend shows it in the studio's local time. Splitting it into `due_date` + `due_time` would mean two columns that must stay in sync and timezone bugs at midnight.
+
+**A build in preparation is a real state.** `build_number` is nullable and `planned_for` holds the target date, so "v0.10 planned for 15 Nov, no CI number yet" is modeled directly instead of overloading `released_at` with two meanings.
+
+**The activity log stores facts, not sentences.** Each row is `action` + `payload` (JSON) written in the same transaction as the change it describes. The frontend turns that into Spanish text. The same event can be phrased differently on each screen, and changing the wording never requires a data migration.
+
+**Indexes follow the queries.** I index what the screens filter and sort by: lane (`status, done_state`), assignee, area, due date, comments by task, and the newest activity first. Nothing speculative.
+
+### Backend
+
+**Plain SQL with `pg`, no ORM.** The stats on both screens are aggregates (`COUNT ... FILTER`, `GROUP BY`, weekly buckets). Writing them in SQL keeps them fast and readable, and I can paste any query into `psql` to debug it. A small query helper gives me parameterized queries (no string concatenation, so no SQL injection) without hiding the SQL.
+
+**Migrations are versioned SQL files.** `node-pg-migrate` applies them in order and records which ones ran, so every environment (dev, test, prod, a restore target) builds the exact same schema from git. In production, migrations run as an explicit deploy step, not on container start, so a restart can never change the schema by surprise.
+
+**Validate at the edges.** `zod` validates every request body and the environment variables at startup. A missing `DATABASE_URL` crashes the API immediately with a clear message instead of failing later on the first request.
+
+**Every mutation and its activity event share one transaction.** Either both are written or neither is, so the activity feed can never show a change that didn't happen, or miss one that did.
+
+**Tests hit a real database.** API tests run with Vitest + Supertest against a dedicated test database, because the bugs that matter most here (constraints, joins, aggregates) are exactly the ones a mocked database would hide.
+
+### Security
+
+**Server-side sessions instead of JWTs.** On login I create a row in `sessions` and send the browser a random session ID in an `httpOnly`, `SameSite=Lax` cookie (`Secure` in production). JavaScript can't read it, so an XSS bug can't steal it, and logging out deletes the row, which ends the session immediately. A JWT can't be revoked before it expires without building a denylist, which is a session table again. Since the frontend and API share an origin, cookies have no downside here.
+
+**argon2id for passwords.** It's deliberately slow and memory-hard, which makes brute-forcing a leaked hash expensive even on GPUs. Plain SHA-256 is fast by design, which is exactly wrong for passwords.
+
+**Least privilege everywhere.** `member` manages tasks and comments; only `admin` manages users, areas and builds, enforced in middleware and covered by tests. The same idea applies to infrastructure: containers run as a non-root user, the backup job uses an IAM user that can only write to one bucket, and the deploy user only has what deploying needs.
+
+**No third-party requests from the browser.** Fonts are bundled with the app instead of loaded from Google Fonts. My users' IPs aren't sent to a third party, the CSP can stay at `font-src 'self'`, and the app doesn't depend on another service being up.
+
+**Logs are written to be parsed.** Failed logins are logged in a consistent format so fail2ban can ban the source and Wazuh can alert on brute-force patterns.
+
+### Frontend
+
+**The UI depends on an interface, not on the backend.** Every screen gets data through `QuestlogApi`. I built the whole UI against a mock implementation first; the interface doubles as the API contract, and switching to the real backend is a config value (`VITE_API_MODE`) with no component changes.
+
+**Tooling: ESLint + typescript-eslint, with TypeScript pinned to 6.0.** typescript-eslint needs TypeScript's JavaScript compiler API, which TypeScript 7 (the native rewrite) doesn't provide yet. ESLint is the standard most teams use, and the backend will share the same setup, so I pinned the compiler to 6.0 instead of switching linters. At this codebase size, TS 7's speed gain doesn't matter. I'll move back to 7 when typescript-eslint supports it. Prettier handles formatting, so lint rules only deal with correctness.
+
+### Operations
+
+**Images are built once and promoted by tag.** CI builds an image, scans it with Trivy and pushes it to GHCR tagged with the git SHA and the version. Production runs that exact image. Rolling back means redeploying the previous tag, not rebuilding old code and hoping it comes out the same.
+
+**Multi-stage builds.** The build stage has the compilers and dev dependencies; the runtime image only has the output and production dependencies. Smaller images download faster and expose fewer packages with known vulnerabilities.
+
+**Backups are only real if a restore works.** Nightly `pg_dump`, encrypted before it leaves the server, stored offsite with a retention policy, checked automatically by a Python script, and proven by a timed restore drill. That drill gives me two numbers I can state honestly: RTO (how long recovery takes) and RPO (how much data I can lose, 24 h with nightly dumps).
