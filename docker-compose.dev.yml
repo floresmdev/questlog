@@ -1,0 +1,25 @@
+# Development overrides: hot reload, ports published on localhost only.
+services:
+  db:
+    ports:
+      # 127.0.0.1 = reachable from this machine only (psql, tests, migrations).
+      # "5432:5432" would bind 0.0.0.0 and expose the DB to your whole LAN.
+      - '127.0.0.1:5432:5432'
+    volumes:
+      # Scripts here run once, on an empty volume: creates questlog_test.
+      - ./infra/postgres/initdb:/docker-entrypoint-initdb.d:ro
+
+  api:
+    build:
+      context: ./backend
+      target: dev
+    environment:
+      NODE_ENV: development
+      APP_NOW: ${APP_NOW:-}
+      TEST_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/questlog_test
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - ./backend:/app/backend # live source: tsx watch reloads on save
+      - /app/backend/node_modules # keep the image's node_modules (not the host's)
+      - ./frontend/src:/app/frontend/src:ro # seed data and shared API types

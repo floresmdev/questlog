@@ -1,0 +1,57 @@
+# Base stack shared by every environment. Always combined with an override:
+#   dev:  docker-compose.dev.yml  (COMPOSE_FILE in .env does this for you)
+#   prod: docker-compose.prod.yml (phase 4)
+name: questlog
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped # come back after crashes and reboots, unless stopped by hand
+    environment:
+      # `:?` stops compose with an error if the variable is missing from .env.
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-questlog}
+    volumes:
+      # Data lives in a named volume, not in the container: it survives
+      # `down`/`up` and image upgrades. Only `down -v` deletes it.
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # "Healthy" = accepting connections, not just "process started".
+      # $$ escapes $ so the variable is expanded inside the container.
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks: [backend]
+    # No `ports:` here: the database is reachable only from this network.
+
+  api:
+    restart: unless-stopped
+    init: true # tiny init as PID 1: forwards signals, reaps zombie processes
+    environment:
+      # `db` resolves through Docker's internal DNS on the `backend` network.
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-questlog}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Mexico_City}
+      DEV_USER_EMAIL: ${DEV_USER_EMAIL:?set DEV_USER_EMAIL in .env}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      db:
+        condition: service_healthy # wait for Postgres to accept connections
+    healthcheck:
+      # /api/health is 200 only if the API can query the database.
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3000/api/health']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    networks: [backend]
+
+networks:
+  # User-defined bridge network: containers find each other by service name,
+  # and nothing outside it can reach them unless a port is published.
+  backend: {}
+
+volumes:
+  pgdata: {}
