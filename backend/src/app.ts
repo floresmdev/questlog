@@ -7,6 +7,7 @@ import { areasRouter } from './routes/areas';
 import { boardRouter } from './routes/board';
 import { buildsRouter } from './routes/builds';
 import { healthRouter } from './routes/health';
+import { statsRouter } from './routes/stats';
 import { tasksRouter } from './routes/tasks';
 import { usersRouter } from './routes/users';
 
@@ -17,7 +18,15 @@ export function createApp() {
   app.use(pinoHttp({ logger }));
 
   const api = express.Router();
-  api.use(healthRouter, usersRouter, areasRouter, buildsRouter, boardRouter, tasksRouter);
+  api.use(
+    healthRouter,
+    usersRouter,
+    areasRouter,
+    buildsRouter,
+    boardRouter,
+    tasksRouter,
+    statsRouter,
+  );
   app.use('/api', api);
 
   app.use(notFound);
