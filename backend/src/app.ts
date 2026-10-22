@@ -4,8 +4,10 @@ import { pinoHttp } from 'pino-http';
 import { errorHandler, notFound } from './errors';
 import { logger } from './logger';
 import { areasRouter } from './routes/areas';
+import { boardRouter } from './routes/board';
 import { buildsRouter } from './routes/builds';
 import { healthRouter } from './routes/health';
+import { tasksRouter } from './routes/tasks';
 import { usersRouter } from './routes/users';
 
 /** Builds the Express app without listening, so tests can drive it with Supertest. */
@@ -15,7 +17,7 @@ export function createApp() {
   app.use(pinoHttp({ logger }));
 
   const api = express.Router();
-  api.use(healthRouter, usersRouter, areasRouter, buildsRouter);
+  api.use(healthRouter, usersRouter, areasRouter, buildsRouter, boardRouter, tasksRouter);
   app.use('/api', api);
 
   app.use(notFound);
