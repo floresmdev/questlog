@@ -19,6 +19,7 @@ export default defineConfig({
       APP_NOW: '2026-09-28T16:20:00-06:00',
       DEV_USER_EMAIL: 'gonzalo@questlog.dev',
     },
+    globalSetup: ['test/support/global-setup.ts'],
     // One database: test files must not run in parallel against it.
     fileParallelism: false,
   },
