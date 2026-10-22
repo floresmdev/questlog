@@ -58,3 +58,28 @@ Format: `## NNN · YYYY-MM-DD · title` → Decision / Why / Rejected.
 - **Decision:** ESLint flat config with typescript-eslint, react-hooks and react-refresh; Prettier for formatting (`singleQuote`, `printWidth: 100`). TypeScript downgraded from 7.0 to `~6.0`.
 - **Why:** typescript-eslint needs TypeScript's JS compiler API, which TS 7 (native port) doesn't ship; its peer range is `<6.1`. ESLint is the standard setup and the backend will share it. TS 7's speed doesn't matter at this size. Width 100 matches the existing code (long Tailwind class lines) and minimizes churn.
 - **Rejected:** oxlint (no TS dependency, but less common and fewer plugins); Biome (replaces Prettier too, least standard). Revisit TS 7 when typescript-eslint supports it.
+
+## 012 · 2026-10-22 · One dev dataset for mocks and seed, enforced by contract tests
+- **Decision:** `frontend/src/mocks/` is the single dev dataset: 64 tasks with the design cards first, real comment rows, five builds. The backend seed loads those files directly, mapping mock ids to deterministic UUIDs. `mockApi` computes every stat from the rows with the same rules as the SQL, and backend contract tests compare each endpoint with `mockApi` on the same data.
+- **Why:** "Mock mode and http mode look identical" becomes a test instead of a hope. Hard-coded stats couldn't agree with the data, and the design's own numbers contradicted each other. One dataset means one place to edit.
+- **Rejected:** Keeping 14 cards and accepting shrunken stats; a separate SQL seed file (two copies that drift); generating random data (non-reproducible screenshots and tests).
+
+## 013 · 2026-10-22 · Time rules: frozen now, studio timezone, rolling weeks
+- **Decision:** `APP_NOW` freezes "now" (Mon 2026-09-28 16:20 Mexico City) in dev/test, and is unset in production. Days and weeks are counted in `APP_TIMEZONE` (the Postgres session timezone, see `db.ts`). Weekly charts use Monday-start weeks and exclude the current week. "This week" counters are rolling: the last 7 days for things that happened, today through 7 days ahead for things that are due. Timestamps are `timestamptz`; `DATE` columns stay `YYYY-MM-DD` strings in Node.
+- **Why:** Stats must match the fixed seed data and be testable. A studio in Mexico City shouldn't see "today" flip at 18:00 because the server runs in UTC. Rolling windows avoid a "this week" that resets every Monday morning. Parsing `DATE` into JS `Date` silently shifts days.
+- **Rejected:** Calendar-week counters (on a Monday they'd mostly show 0); server-local time; shifting seed dates relative to the real clock.
+
+## 014 · 2026-10-22 · UUID keys and schema details
+- **Decision:** Primary keys are `uuid DEFAULT gen_random_uuid()`. Tasks also get a human code `QL-###` from a sequence. `color_key` and `avatar_color` are `text` with `CHECK` lists. `users.password_hash` is `NOT NULL DEFAULT '!'`, a locked account like in `/etc/shadow`, until phase 2b sets real argon2id hashes. `activity_log.task_id` is `ON DELETE SET NULL` and comments `ON DELETE CASCADE`.
+- **Why:** UUIDs can't be enumerated by counting and fit the frontend's `Id = string`; people use `QL-###` anyway. The CHECKs keep invalid UI tokens out of the database. A locked marker avoids a nullable credential column. History outlives deleted tasks; comments don't.
+- **Rejected:** `bigint` identity keys (guessable, leaks counts); Postgres enums for colors (adding one needs `ALTER TYPE`); nullable `password_hash`.
+
+## 015 · 2026-10-22 · Dev Docker stack layout
+- **Decision:** `docker-compose.yml` holds what every environment shares: services, network, volume, healthchecks, restart policy, no published ports. `docker-compose.dev.yml` adds hot reload (bind-mounted source plus an anonymous `node_modules` volume), ports on `127.0.0.1` only, and an init script that creates `questlog_test`. `COMPOSE_FILE` in `.env` selects the pair. `backend/Dockerfile` has a `dev` stage running `tsx watch` as the `node` user, with `init: true`. Migrations and seed are explicit `docker compose exec` commands, never run on container start.
+- **Why:** Prod (phase 4) only adds its own override, so nothing is duplicated. Localhost binding keeps the DB off the LAN. A restart must never change the schema by surprise.
+- **Rejected:** One compose file with profiles (dev and prod settings tangled together); running Postgres on the host; auto-migrating in the container entrypoint.
+
+## 016 · 2026-10-22 · Backend runs TypeScript via tsx and shares the frontend's types
+- **Decision:** The backend imports response types (`import type`) and seed data from `frontend/src/`, uses `moduleResolution: "bundler"`, and runs `.ts` directly with `tsx`. Responses are shaped as JSON in SQL (`json_build_object` fragments in `db/json.ts`), typed with the shared interfaces. How production runs the code (tsx or a compiled bundle) is decided in phase 4.
+- **Why:** One contract, no duplicated interfaces. `bundler` resolution accepts the frontend's extensionless imports. SQL-built JSON avoids a mapping layer for every endpoint.
+- **Rejected:** A shared workspace package now (tooling for one file); `NodeNext` resolution (would require `.js` extensions across the frontend); an ORM to map rows.

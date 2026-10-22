@@ -1,20 +1,20 @@
 # Status
 
 ## Phase and goal
-- Phase 1.5 (housekeeping) — implemented, waiting for review (🛑 checkpoint before push).
-- Next: Phase 2a — backend + PostgreSQL in Docker (dev). Plan: [QUESTLOG_ROADMAP.md](QUESTLOG_ROADMAP.md) §6.
+- Phase 2a (backend foundation + PostgreSQL in Docker) — implemented and verified in the cloud sandbox; 🛑 checkpoint: Alejandro runs the acceptance checks on his machine, then tag `v0.2.0-backend-read`.
+- Next: Phase 2b — auth, roles, write endpoints. Plan: [QUESTLOG_ROADMAP.md](QUESTLOG_ROADMAP.md) §6.
 
 ## Done last session
-- Roadmap added, with a design-rationale section (§11); context docs synced (HANDOFF §3, ADRs 007–010).
-- Fonts self-hosted via `@fontsource-variable/*`; no third-party requests (verified, pixel-identical render).
-- ESLint + Prettier added, TypeScript pinned to ~6.0 (ADR 011); codebase formatted.
-- `useApi` fixed: loading derived from deps instead of `setState` in the effect.
-- Removed empty root `package-lock.json`.
+- Frontend contract aligned with the final schema; activity is structured events rendered on the client.
+- Mock dataset grown to 64 tasks; all stats derived (no hard-coded numbers).
+- `backend/`: Express 5 + TS, SQL migration, seed from the mocks, all 19 `QuestlogApi` endpoints, 47 tests (incl. contract tests vs `mockApi`).
+- `httpClient` + `VITE_API_MODE`; mock and http modes render pixel-identical.
+- Docker Compose dev stack (`db`, `api`), runbook, `docs/learning/phase-2a.md`, ADRs 012–016.
 
 ## Next 3 steps
-1. Review and push phase 1.5; delete the local empty `questlog-handoff/` folder on your machine.
-2. Phase 2a plan: `backend/` scaffold, `docker-compose.yml` + `docker-compose.dev.yml` (`db`, `api`). Prereq: Docker Engine + Compose plugin installed by you.
-3. Phase 2a: migrations for HANDOFF §3, seed from `frontend/src/mocks/`, read endpoints + SQL stats.
+1. On your Linux PC: runbook first-time setup, the acceptance checks (roadmap 2a) and the hands-on list in `docs/learning/phase-2a.md`.
+2. Tag `v0.2.0-backend-read` once they pass.
+3. Phase 2b plan: argon2id + server-side sessions, roles, write endpoints with activity events in the same transaction.
 
 ## Open questions (need your decision)
 - Logged-in demo user and game name (Gonzalo / CEO, `[JUEGO SUPREMO]`, ADR 004): confirm real names with the client before production.
@@ -24,11 +24,12 @@
 - Sanitized public copy of the repo later? (needs client approval)
 
 ## Known issues / tech debt
-- `frontend/src/api/types.ts` and mocks predate the final schema (e.g. `due_at`, `planned_for`).
-- `QuestlogApi` is read-only: comment composer, drag-drop, edits are inert.
-- Several stats are hard-coded in `mocks/dashboard.ts`, not derived from tasks.
-- No tests yet; lint + typecheck + format:check are the checks.
-- `dist/` ships unused cyrillic/greek/vietnamese font subsets (never downloaded thanks to `unicode-range`; fontsource variable packages have no per-subset entry).
+- `QuestlogApi` is read-only: comment composer, drag-drop, edits are inert (phase 2b/3).
+- `/api/me` returns `DEV_USER_EMAIL` until sessions exist (phase 2b).
+- `APP_NOW` is frozen to the seed date in dev/test (phase 3 switches to the real clock).
+- The api container runs as uid 1000; bind-mounted repos owned by another uid can't be written from inside (runbook → Troubleshooting).
+- How production runs the backend (tsx vs compiled bundle) is open until phase 4 (ADR 016).
+- `dist/` ships unused cyrillic/greek/vietnamese font subsets (never downloaded thanks to `unicode-range`).
 
 ## Last updated
-- 2026-10-21 · `0091441`
+- 2026-10-22 · `00b70c1`

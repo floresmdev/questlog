@@ -17,25 +17,37 @@
 - `frontend/` — Vite + React + TS + Tailwind SPA. Details: [frontend/CLAUDE.md](frontend/CLAUDE.md).
   - `frontend/src/api/` — the only data access layer; start here for anything data-related.
   - `frontend/src/pages/` — route entry points (`/overview`, `/tasks`).
-  - `frontend/src/mocks/` — typed sample data behind the mock client.
+  - `frontend/src/mocks/` — the dev dataset: behind the mock client and loaded by the backend seed.
+- `backend/` — Express 5 + TS API, SQL migrations, seed, tests. Details: [backend/CLAUDE.md](backend/CLAUDE.md).
+- `infra/` — infra config (`postgres/initdb/`); nginx and scripts come in later phases.
+- `docker-compose.yml` (shared base) + `docker-compose.dev.yml` (dev overrides).
 - `docs/` — handoff, status, decisions.
   - `docs/HANDOFF.md` — design tokens, data model, screens, interactions.
   - `docs/design/` — approved screen references (`*.reference.html`, `*@2x.png`).
   - `docs/QUESTLOG_ROADMAP.md` — long-term phase plan, acceptance criteria, checkpoints. Read only the current phase's section.
   - `docs/STATUS.md` — current state (volatile). `docs/DECISIONS.md` — ADR log.
+  - `docs/runbook.md` — how to run, migrate, seed, reset, troubleshoot.
+  - `docs/learning/phase-*.md` — per-phase learning notes (roadmap §8).
 - `.claude/commands/` — project slash commands (`/session-end`).
-- Not yet created (phase 2+): `backend/`, `infra/`, `docker-compose*.yml`.
+- Not yet created: `docker-compose.prod.yml`, nginx config, Dockerfile prod stages (phase 4).
 
 ## Commands
-Run in `frontend/` (Node 20.19+):
-- `npm install`
-- `npm run dev` — http://localhost:5173, proxies `/api` → `localhost:3000`
-- `npm run build` — `tsc -b` + `vite build` → `frontend/dist/`
-- `npm run lint` — ESLint (typescript-eslint, react-hooks, react-refresh)
-- `npm run typecheck` — `tsc -b` (TypeScript pinned to ~6.0, ADR 011)
-- `npm run format` / `npm run format:check` — Prettier
-- Before committing: `npm run lint && npm run typecheck && npm run format:check`
-- `npm run preview` — serve the built `dist/`
+Full operations guide: [docs/runbook.md](docs/runbook.md).
+
+Stack (repo root; `.env` from `.env.example`):
+- `docker compose up -d --build` — db + api (dev). `docker compose ps` — health.
+- `docker compose exec api npm run migrate -- up` / `npm run seed` — schema / dev data.
+
+`frontend/` (Node 20.19+):
+- `npm run dev` — http://localhost:5173 with mocks; `VITE_API_MODE=http npm run dev` — against the API.
+- `npm run build` — `tsc -b` + `vite build` → `frontend/dist/`. `npm run preview` — serve it.
+
+`backend/` (Node 22.9+; `backend/.env` from `.env.example`):
+- `npm test` — Vitest + Supertest against `TEST_DATABASE_URL` (migrated and seeded each run).
+- `npm run dev` — API on :3000 outside Docker.
+
+Both packages (TypeScript pinned to ~6.0, ADR 011):
+- Before committing: `npm run lint && npm run typecheck && npm run format:check` (backend: also `npm test`).
 
 ## Conventions
 - TypeScript strict (`noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`).
