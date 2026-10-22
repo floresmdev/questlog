@@ -25,7 +25,9 @@ const schema = z.object({
 export type Config = z.infer<typeof schema>;
 
 function load(): Config {
-  const result = schema.safeParse(process.env);
+  // `KEY=` in an env file or `KEY: ${UNSET}` in compose arrives as "": treat it as unset.
+  const env = Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== ''));
+  const result = schema.safeParse(env);
   if (!result.success) {
     // Fail fast at startup with every problem listed, instead of on the first request.
     throw new Error(`Invalid environment:\n${z.prettifyError(result.error)}`);
