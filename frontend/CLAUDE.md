@@ -20,10 +20,11 @@ Stack, commands, Node version: [README.md](README.md). Root rules: [../CLAUDE.md
 
 - `api/client.ts` — `QuestlogApi` interface; one method per future `GET /api/*` endpoint (path in a trailing comment).
 - `api/mockClient.ts` — `mockApi` implements it over `mocks/`, computing every stat with the same rules as the backend SQL (rolling 7-day "this week", Monday weeks, `APP_TIMEZONE`).
-- `api/index.ts` — `export const api: QuestlogApi = mockApi;` — the single switch point.
-- Switch clients (phase 2a): `httpClient.ts` implements `QuestlogApi` with `fetch('/api/…')`; `index.ts` picks it via `VITE_API_MODE=mock|http` (default `mock`). Nothing else should change.
+- `api/httpClient.ts` — `httpApi` implements it with `fetch('/api/…')` (Vite proxy → `localhost:3000` in dev).
+- `api/index.ts` — the single switch point: `VITE_API_MODE=http` picks `httpApi`, anything else `mockApi`. Vite inlines the value, so the unused client is dropped from the bundle (`"sideEffects"` in `package.json` allows that).
+- Run against the backend: `VITE_API_MODE=http npm run dev`. Both modes must render identically.
 - Components/pages import `api` and types from `../api` only — never from `mocks/`, never `fetch` directly.
-- Interface is read-only so far; mutations (drag-drop, comments, edits) get added here first.
+- Interface is read-only so far; mutations (drag-drop, comments, edits) get added here first (phase 2b/3).
 - Pattern in pages: `const { data } = useApi(() => api.getX(), [deps])`.
 
 ## Styling
