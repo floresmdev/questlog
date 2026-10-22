@@ -1,4 +1,5 @@
 import type { ActivityItem } from '../../api/types';
+import { renderActivity } from '../../lib/activity';
 import { clockTime, relativeTime } from '../../lib/format';
 import { highlightToneClass } from '../../lib/styles';
 import { Avatar } from '../ui/Avatar';
@@ -24,30 +25,29 @@ export function RecentActivity({ items, variant }: RecentActivityProps) {
         size={isClock ? 15 : 16}
         link={{ label: 'Ver todo', to: '#actividad' }}
       />
-      {items.map((item) =>
-        isClock ? (
+      {items.map((item) => {
+        const { text, highlight } = renderActivity(item, variant);
+        return isClock ? (
           <div key={item.id} className="flex items-center gap-2.5 text-xs">
             <span className="w-[38px] shrink-0 font-mono text-[11px] font-semibold text-ink-muted">
               {clockTime(item.createdAt)}
             </span>
             <Avatar user={item.actor} size="xs" />
             <span className="flex-grow leading-[1.35] text-ink-2">
-              {item.text}{' '}
-              {item.highlight && (
-                <b className={highlightToneClass[item.highlight.tone]}>{item.highlight.text}</b>
-              )}
+              {text}{' '}
+              {highlight && <b className={highlightToneClass[highlight.tone]}>{highlight.text}</b>}
             </span>
           </div>
         ) : (
           <div key={item.id} className="flex items-center gap-2.5 text-[12.5px]">
             <Avatar user={item.actor} size="sm" />
-            <span className="flex-grow leading-[1.3] text-ink-2">{item.text}</span>
+            <span className="flex-grow leading-[1.3] text-ink-2">{text}</span>
             <span className="whitespace-nowrap text-[11.5px] font-semibold text-ink-muted">
               {relativeTime(item.createdAt)}
             </span>
           </div>
-        ),
-      )}
+        );
+      })}
     </Panel>
   );
 }

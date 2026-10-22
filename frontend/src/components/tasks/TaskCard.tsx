@@ -20,7 +20,7 @@ interface TaskCardProps {
  */
 export function TaskCard({ task, selected, onSelect }: TaskCardProps) {
   const isDone = task.status === 'done';
-  const date = isDone && task.completedAt ? task.completedAt : task.dueDate;
+  const date = isDone && task.completedAt ? task.completedAt : task.dueAt;
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -67,15 +67,17 @@ export function TaskCard({ task, selected, onSelect }: TaskCardProps) {
       )}
 
       <div className="flex items-center gap-2.5 text-[11px] font-medium text-ink-muted">
-        <span className="inline-flex items-center gap-1 whitespace-nowrap">
-          <CalendarIcon size={12} strokeWidth={2} />
-          {shortDate(date)}
-        </span>
+        {date && (
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            <CalendarIcon size={12} strokeWidth={2} />
+            {shortDate(date)}
+          </span>
+        )}
         <span className="inline-flex items-center gap-1">
           <MessageIcon size={12} strokeWidth={2} />
           {task.commentCount}
         </span>
-        <Avatar user={task.assignee} className="ml-auto" />
+        {task.assignee && <Avatar user={task.assignee} className="ml-auto" />}
       </div>
     </article>
   );

@@ -1,5 +1,6 @@
 import type {
   ActivityItem,
+  ActivityScope,
   AgendaItem,
   Area,
   AreaCount,
@@ -36,16 +37,16 @@ export interface QuestlogApi {
   getCurrentBuild(): Promise<CurrentBuild>; //                 GET /api/builds/current
 
   // Tasks screen
-  getBoard(filters?: BoardFilters): Promise<BoardLane[]>; //   GET /api/board?areaId=&assigneeId=&buildId=
+  getBoard(filters?: BoardFilters, perLane?: number): Promise<BoardLane[]>; // GET /api/board?areaId=&assigneeId=&buildId=&perLane=
   getTask(id: Id): Promise<TaskDetail>; //                     GET /api/tasks/:id
   getTaskStats(): Promise<TaskStats>; //                       GET /api/stats/tasks
   getPriorityStats(): Promise<PriorityStats>; //               GET /api/stats/priorities
-  getAreaWorkload(): Promise<AreaCount[]>; //                  GET /api/stats/area-workload
-  getActivity(feed: 'tasks' | 'overview'): Promise<ActivityItem[]>; // GET /api/activity?feed=
+  getAreaWorkload(limit: number): Promise<AreaCount[]>; //     GET /api/stats/area-workload?limit=
+  getActivity(scope: ActivityScope, limit: number): Promise<ActivityItem[]>; // GET /api/activity?scope=&limit=
 
   // Overview screen
   getOverviewStats(): Promise<OverviewStats>; //               GET /api/stats/overview
-  getAreaProgress(): Promise<AreaProgressItem[]>; //           GET /api/stats/area-progress
+  getAreaProgress(limit: number): Promise<AreaProgressItem[]>; // GET /api/stats/area-progress?limit=
   getWeeklyCompleted(weeks: number): Promise<WeeklyCompletedPoint[]>; // GET /api/stats/weekly-completed?weeks=
   getAgenda(date: ISODate): Promise<AgendaItem[]>; //          GET /api/agenda?date=
   getCalendarEvents(from: ISODate, to: ISODate): Promise<CalendarEvent[]>; // GET /api/calendar?from=&to=

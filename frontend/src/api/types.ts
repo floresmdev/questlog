@@ -36,11 +36,9 @@ export interface User {
   role: UserRole;
   initials: string;
   avatarColor: AvatarColor;
-  /**
-   * Display title ("Producer", "QA", "CEO"). Not in the §3 schema yet, but the
-   * sidebar and comment headers show it — proposed `users.job_title`.
-   */
+  /** Display title ("Producer", "QA", "CEO") shown in the sidebar and comments. */
   jobTitle: string | null;
+  isActive: boolean;
   createdAt: ISODateTime;
 }
 
@@ -49,8 +47,10 @@ export interface Build {
   version: string;
   /** null while the build is still being prepared (no CI number yet). */
   buildNumber: number | null;
-  /** Release date, or the planned date when `buildNumber` is null. */
-  releasedAt: ISODate | null;
+  /** Target date of a build in preparation. */
+  plannedFor: ISODate | null;
+  /** null until the build is released. */
+  releasedAt: ISODateTime | null;
   notes: string;
 }
 
@@ -60,14 +60,15 @@ export interface Task {
   title: string;
   description: string;
   areaId: Id;
-  assigneeId: Id;
+  assigneeId: Id | null;
   status: TaskStatus;
   /** Required when status = 'done', null otherwise. */
   doneState: DoneState | null;
   changeNote: string | null;
   priority: Priority;
-  startDate: ISODate;
-  dueDate: ISODate;
+  startDate: ISODate | null;
+  /** Exact due instant; the agenda shows its time of day. */
+  dueAt: ISODateTime | null;
   completedAt: ISODateTime | null;
   targetBuildId: Id | null;
   integratedBuildId: Id | null;
@@ -99,7 +100,7 @@ export interface ActivityLog {
 /** A task joined with the rows a card needs. */
 export interface TaskListItem extends Task {
   area: Area;
-  assignee: User;
+  assignee: User | null;
   targetBuild: Build | null;
   integratedBuild: Build | null;
   commentCount: number;
@@ -110,7 +111,7 @@ export interface CommentWithAuthor extends Comment {
 }
 
 export interface TaskDetail extends TaskListItem {
-  /** Most recent comments, oldest first. `commentCount` has the full total. */
+  /** Up to the 2 most recent comments, oldest first. `commentCount` has the full total. */
   comments: CommentWithAuthor[];
 }
 
@@ -181,26 +182,41 @@ export interface WeeklyCompletedPoint {
 
 export type HighlightTone = 'progress' | 'danger' | 'success';
 
+export type BuildRef = Pick<Build, 'id' | 'version' | 'buildNumber'>;
+export type TaskRef = Pick<Task, 'id' | 'code' | 'title'>;
+
 /**
- * A rendered activity_log entry. The wording differs per screen in the design,
- * so for now the copy comes pre-rendered; the backend phase decides whether
- * text is built server- or client-side from `action` + `payload`.
+ * Structured `activity_log` events. The server only stores facts; the client
+ * turns them into Spanish sentences (`lib/activity.ts`). Build details are a
+ * snapshot taken when the event happened.
  */
-export interface ActivityItem {
+export type ActivityEvent =
+  | { action: 'task.moved'; payload: { from: TaskStatus; to: TaskStatus } }
+  | { action: 'task.priority_changed'; payload: { from: Priority; to: Priority } }
+  | { action: 'task.completed'; payload: { doneState: DoneState; build: BuildRef | null } }
+  | { action: 'comment.created'; payload: Record<string, never> }
+  | { action: 'build.released'; payload: { build: BuildRef } };
+
+export type ActivityAction = ActivityEvent['action'];
+
+/** An `activity_log` row joined with its actor and (optional) task. */
+export type ActivityItem = ActivityEvent & {
   id: Id;
   actor: User;
+  task: TaskRef | null;
   createdAt: ISODateTime;
-  text: string;
-  highlight?: { text: string; tone: HighlightTone };
-}
+};
 
-/** An item on today's agenda (the schema has no time-of-day; proposed `tasks.due_time`). */
+/** Feed scope: 'tasks' = task changes only (Tareas), 'all' = every event (Overview). */
+export type ActivityScope = 'tasks' | 'all';
+
+/** A task due on the requested day. */
 export interface AgendaItem {
   id: Id;
   title: string;
   area: Area;
-  assignee: User;
-  time: string; // 'HH:mm'
+  assignee: User | null;
+  dueAt: ISODateTime;
   done: boolean;
 }
 
@@ -211,13 +227,13 @@ export interface CalendarEvent {
   kind: CalendarEventKind;
 }
 
+/** An upcoming open high-priority task or a planned build. */
 export interface Deadline {
   id: Id;
   kind: 'task' | 'build';
+  /** Task title, or the build version. */
   label: string;
   date: ISODate;
-  /** "Alta" for tasks, "Integración" for builds. */
-  detail: string;
 }
 
 export interface BuildHistoryItem {

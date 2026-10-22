@@ -83,14 +83,14 @@ export const buildHistoryCounts: Record<
 
 export const newInGameCount: Record<Id, number> = { 'b-090': 6 };
 
-/** Today's agenda (times of day aren't in the schema yet). */
+/** Today's agenda. */
 export const agenda = [
   {
     id: 'ag-1',
     title: 'Revisar colisiones del nivel 2',
     areaId: 'area-qa',
     assigneeId: 'u-lp',
-    time: '09:00',
+    dueAt: '2026-09-28T09:00:00-06:00',
     done: true,
   },
   {
@@ -98,7 +98,7 @@ export const agenda = [
     title: 'Exportar sprites del jefe',
     areaId: 'area-art',
     assigneeId: 'u-mr',
-    time: '11:30',
+    dueAt: '2026-09-28T11:30:00-06:00',
     done: true,
   },
   {
@@ -106,7 +106,7 @@ export const agenda = [
     title: 'Integrar pathfinding en la rama',
     areaId: 'area-prog',
     assigneeId: 'u-dr',
-    time: '15:00',
+    dueAt: '2026-09-28T15:00:00-06:00',
     done: false,
   },
   {
@@ -114,7 +114,7 @@ export const agenda = [
     title: 'Playtest interno del nivel 2',
     areaId: 'area-design',
     assigneeId: 'u-st',
-    time: '16:30',
+    dueAt: '2026-09-28T16:30:00-06:00',
     done: false,
   },
   {
@@ -122,13 +122,7 @@ export const agenda = [
     title: 'Mezcla de audio del nivel 1',
     areaId: 'area-audio',
     assigneeId: 'u-vg',
-    time: '18:00',
+    dueAt: '2026-09-28T18:00:00-06:00',
     done: false,
   },
 ];
-
-/** Short labels for the "Próximas entregas" list. */
-export const deadlineLabels: Record<Id, string> = {
-  't-139': 'Crash en Switch',
-  't-142': 'Pathfinding voladores',
-};

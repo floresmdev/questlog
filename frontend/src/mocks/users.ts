@@ -13,6 +13,7 @@ export const users: User[] = [
     initials: 'GM',
     avatarColor: 'slate',
     jobTitle: 'CEO',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -23,6 +24,7 @@ export const users: User[] = [
     initials: 'LM',
     avatarColor: 'slate',
     jobTitle: 'Producer',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -33,6 +35,7 @@ export const users: User[] = [
     initials: 'DR',
     avatarColor: 'blue',
     jobTitle: 'Programación',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -43,6 +46,7 @@ export const users: User[] = [
     initials: 'ST',
     avatarColor: 'violet',
     jobTitle: 'Diseño',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -53,6 +57,7 @@ export const users: User[] = [
     initials: 'MR',
     avatarColor: 'pink',
     jobTitle: 'Arte',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -63,6 +68,7 @@ export const users: User[] = [
     initials: 'VG',
     avatarColor: 'teal',
     jobTitle: 'Audio',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -73,6 +79,7 @@ export const users: User[] = [
     initials: 'AC',
     avatarColor: 'orange',
     jobTitle: 'UI/UX',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -83,6 +90,7 @@ export const users: User[] = [
     initials: 'LP',
     avatarColor: 'red',
     jobTitle: 'QA',
+    isActive: true,
     createdAt: created,
   },
   {
@@ -93,6 +101,7 @@ export const users: User[] = [
     initials: 'SF',
     avatarColor: 'slate',
     jobTitle: 'Narrativa',
+    isActive: true,
     createdAt: created,
   },
 ];

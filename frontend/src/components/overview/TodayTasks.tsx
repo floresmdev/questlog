@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { AgendaItem, Id } from '../../api/types';
+import { clockTime } from '../../lib/format';
 import { AreaTag } from '../ui/AreaTag';
 import { Avatar } from '../ui/Avatar';
 import { Panel } from '../ui/Panel';
@@ -45,8 +46,10 @@ export function TodayTasks({ items, onToggle }: TodayTasksProps) {
             {item.title}
           </span>
           <AreaTag area={item.area} size="md" />
-          <Avatar user={item.assignee} size="sm" />
-          <span className="w-11 text-right text-xs font-semibold text-ink-muted">{item.time}</span>
+          {item.assignee && <Avatar user={item.assignee} size="sm" />}
+          <span className="w-11 text-right text-xs font-semibold text-ink-muted">
+            {clockTime(item.dueAt)}
+          </span>
         </label>
       ))}
     </Panel>

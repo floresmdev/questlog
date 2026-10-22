@@ -65,16 +65,22 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
             <PriorityTag priority={task.priority} size="detail" />
           </TaskFieldRow>
           <TaskFieldRow label="Responsable">
-            <Avatar user={task.assignee} />
-            {task.assignee.fullName}
+            {task.assignee ? (
+              <>
+                <Avatar user={task.assignee} />
+                {task.assignee.fullName}
+              </>
+            ) : (
+              <span className="text-ink-muted">Sin asignar</span>
+            )}
           </TaskFieldRow>
           <TaskFieldRow label="Área">
             <AreaTag area={task.area} size="detail" />
           </TaskFieldRow>
           <TaskFieldRow label="Fechas">
-            {shortDate(task.startDate)} <span className="text-ink-faint">→</span>{' '}
-            {shortDate(task.dueDate)}
-            {task.status !== 'done' && <DaysLeft due={task.dueDate} />}
+            {task.startDate ? shortDate(task.startDate) : '—'}{' '}
+            <span className="text-ink-faint">→</span> {task.dueAt ? shortDate(task.dueAt) : '—'}
+            {task.status !== 'done' && task.dueAt && <DaysLeft due={task.dueAt} />}
           </TaskFieldRow>
           <TaskFieldRow label="Build">
             {task.integratedBuild ? (

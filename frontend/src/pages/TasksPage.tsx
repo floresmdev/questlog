@@ -16,8 +16,8 @@ export function TasksPage() {
   const user = useCurrentUser();
   const { data: stats } = useApi(() => api.getTaskStats());
   const { data: lanes } = useApi(() => api.getBoard());
-  const { data: activity } = useApi(() => api.getActivity('tasks'));
-  const { data: workload } = useApi(() => api.getAreaWorkload());
+  const { data: activity } = useApi(() => api.getActivity('tasks', 4));
+  const { data: workload } = useApi(() => api.getAreaWorkload(5));
   const { data: priorities } = useApi(() => api.getPriorityStats());
 
   // undefined = nothing picked yet → default to the first card in progress; null = panel closed.

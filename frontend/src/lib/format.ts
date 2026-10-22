@@ -82,6 +82,6 @@ export function relativeTime(value: ISODateTime, now: Date = APP_NOW): string {
 }
 
 /** "v0.9.0 · #214" or "v0.9.1" while the build has no number. */
-export function buildLabel(build: Build): string {
+export function buildLabel(build: Pick<Build, 'version' | 'buildNumber'>): string {
   return build.buildNumber === null ? build.version : `${build.version} · #${build.buildNumber}`;
 }

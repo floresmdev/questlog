@@ -3,7 +3,7 @@ import type { Area, Build, BuildHistoryItem, Id, LaneId, Task, TaskListItem, Use
 import { areas } from '../mocks/areas';
 import { builds, currentBuildId } from '../mocks/builds';
 import { comments } from '../mocks/comments';
-import { overviewActivity, taskActivity } from '../mocks/activity';
+import { activity } from '../mocks/activity';
 import { currentUserId, users } from '../mocks/users';
 import { commentCounts, tasks } from '../mocks/tasks';
 import {
@@ -11,7 +11,6 @@ import {
   areaProgress,
   areaWorkload,
   buildHistoryCounts,
-  deadlineLabels,
   doneBreakdown,
   laneTotals,
   newInGameCount,
@@ -33,12 +32,13 @@ const area = (id: Id): Area => byId(areas, id, 'area');
 const user = (id: Id): User => byId(users, id, 'user');
 const build = (id: Id): Build => byId(builds, id, 'build');
 const buildOrNull = (id: Id | null) => (id ? build(id) : null);
+const userOrNull = (id: Id | null) => (id ? user(id) : null);
 
 function toListItem(task: Task): TaskListItem {
   return {
     ...task,
     area: area(task.areaId),
-    assignee: user(task.assigneeId),
+    assignee: userOrNull(task.assigneeId),
     targetBuild: buildOrNull(task.targetBuildId),
     integratedBuild: buildOrNull(task.integratedBuildId),
     commentCount: commentCounts[task.id] ?? 0,
@@ -74,7 +74,7 @@ export const mockApi: QuestlogApi = {
     return { build: build(currentBuildId), newInGameCount: newInGameCount[currentBuildId] ?? 0 };
   },
 
-  async getBoard(filters = {}) {
+  async getBoard(filters = {}, perLane = 4) {
     const visible = tasks.filter(
       (t) =>
         (!filters.areaId || t.areaId === filters.areaId) &&
@@ -89,6 +89,7 @@ export const mockApi: QuestlogApi = {
       tasks: visible
         .filter((t) => laneOf(t) === id)
         .sort((a, b) => a.position - b.position)
+        .slice(0, perLane)
         .map(toListItem),
     }));
   },
@@ -100,6 +101,7 @@ export const mockApi: QuestlogApi = {
       comments: comments
         .filter((c) => c.taskId === id)
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+        .slice(-2)
         .map((c) => ({ ...c, author: user(c.authorId) })),
     };
   },
@@ -110,21 +112,33 @@ export const mockApi: QuestlogApi = {
   async getPriorityStats() {
     return priorityStats;
   },
-  async getAreaWorkload() {
-    return areaWorkload.map((w) => ({ area: area(w.areaId), count: w.count }));
+  async getAreaWorkload(limit) {
+    return areaWorkload.slice(0, limit).map((w) => ({ area: area(w.areaId), count: w.count }));
   },
 
-  async getActivity(feed) {
-    const rows = feed === 'tasks' ? taskActivity : overviewActivity;
-    return rows.map(({ actorId, ...rest }) => ({ ...rest, actor: user(actorId) }));
+  async getActivity(scope, limit) {
+    return activity
+      .filter((a) => scope === 'all' || a.taskId !== null)
+      .filter((a) => scope === 'all' || a.action !== 'comment.created')
+      .slice(0, limit)
+      .map(({ actorId, taskId, ...rest }) => {
+        const task = taskId ? byId(tasks, taskId, 'task') : null;
+        return {
+          ...rest,
+          actor: user(actorId),
+          task: task && { id: task.id, code: task.code, title: task.title },
+        };
+      });
   },
 
   async getOverviewStats() {
     const nextBuild = builds.find((b) => b.buildNumber === null) ?? null;
     return { ...overviewCounts, currentBuild: build(currentBuildId), nextBuild };
   },
-  async getAreaProgress() {
-    return areaProgress.map((p) => ({ area: area(p.areaId), done: p.done, total: p.total }));
+  async getAreaProgress(limit) {
+    return areaProgress
+      .slice(0, limit)
+      .map((p) => ({ area: area(p.areaId), done: p.done, total: p.total }));
   },
   async getWeeklyCompleted(weeks) {
     return weeklyCompleted.slice(-weeks);
@@ -133,17 +147,18 @@ export const mockApi: QuestlogApi = {
     return agenda.map(({ areaId, assigneeId, ...rest }) => ({
       ...rest,
       area: area(areaId),
-      assignee: user(assigneeId),
+      assignee: userOrNull(assigneeId),
     }));
   },
 
   async getCalendarEvents(from, to) {
     const inRange = (d: string | null): d is string => !!d && d >= from && d <= to;
-    const released = builds.filter((b) => b.buildNumber !== null && inRange(b.releasedAt));
-    const due = tasks.filter((t) => isOpen(t) && t.priority === 'high' && inRange(t.dueDate));
+    const day = (ts: string | null) => ts && ts.slice(0, 10);
+    const released = builds.filter((b) => inRange(day(b.releasedAt)));
+    const due = tasks.filter((t) => isOpen(t) && t.priority === 'high' && inRange(day(t.dueAt)));
     return [
-      ...released.map((b) => ({ date: b.releasedAt!, kind: 'build' as const })),
-      ...due.map((t) => ({ date: t.dueDate, kind: 'due' as const })),
+      ...released.map((b) => ({ date: day(b.releasedAt)!, kind: 'build' as const })),
+      ...due.map((t) => ({ date: day(t.dueAt)!, kind: 'due' as const })),
     ];
   },
 
@@ -153,18 +168,16 @@ export const mockApi: QuestlogApi = {
       .map((t) => ({
         id: t.id,
         kind: 'task' as const,
-        label: deadlineLabels[t.id] ?? t.title,
-        date: t.dueDate,
-        detail: 'Alta',
+        label: t.title,
+        date: t.dueAt!.slice(0, 10),
       }));
     const buildDeadlines = builds
-      .filter((b) => b.buildNumber === null && b.releasedAt)
+      .filter((b) => b.releasedAt === null && b.plannedFor)
       .map((b) => ({
         id: b.id,
         kind: 'build' as const,
-        label: `Build ${b.version}`,
-        date: b.releasedAt!,
-        detail: 'Integración',
+        label: b.version,
+        date: b.plannedFor!,
       }));
     // Stable sort keeps tasks ahead of builds on the same day.
     return [...taskDeadlines, ...buildDeadlines]

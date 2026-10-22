@@ -24,7 +24,7 @@ export function OverviewPage() {
   const [month, setMonth] = useState(() => new Date(APP_NOW.getFullYear(), APP_NOW.getMonth(), 1));
 
   const { data: stats } = useApi(() => api.getOverviewStats());
-  const { data: areaProgress } = useApi(() => api.getAreaProgress());
+  const { data: areaProgress } = useApi(() => api.getAreaProgress(6));
   const { data: weekly } = useApi(() => api.getWeeklyCompleted(8));
   const { data: agenda } = useApi(() => api.getAgenda(toISODate(APP_NOW)));
   const { data: events } = useApi(() => {
@@ -32,7 +32,7 @@ export function OverviewPage() {
     return api.getCalendarEvents(toISODate(grid[0]), toISODate(grid[grid.length - 1]));
   }, [month]);
   const { data: deadlines } = useApi(() => api.getUpcomingDeadlines(3));
-  const { data: activity } = useApi(() => api.getActivity('overview'));
+  const { data: activity } = useApi(() => api.getActivity('all', 5));
   const { data: builds } = useApi(() => api.getBuildHistory(4));
   const { data: doneBreakdown } = useApi(() => api.getDoneBreakdown());
 
@@ -76,8 +76,8 @@ export function OverviewPage() {
                 value={stats.currentBuild.version}
                 valueStyle="mono"
                 footnote={
-                  stats.nextBuild?.releasedAt
-                    ? `Próxima: ${stats.nextBuild.version} · ${shortDate(stats.nextBuild.releasedAt)}`
+                  stats.nextBuild?.plannedFor
+                    ? `Próxima: ${stats.nextBuild.version} · ${shortDate(stats.nextBuild.plannedFor)}`
                     : 'Sin próxima build'
                 }
                 footnoteClass="text-warning"

@@ -27,12 +27,12 @@ export function UpcomingDeadlines({ items }: UpcomingDeadlinesProps) {
           className={`flex flex-col gap-0.5 rounded-[10px] border-[1.5px] px-2.5 py-2 ${toneClass(item)}`}
         >
           <span
-            className={`text-[12.5px] font-bold text-ink ${item.kind === 'build' ? 'font-mono' : ''}`}
+            className={`truncate text-[12.5px] font-bold text-ink ${item.kind === 'build' ? 'font-mono' : ''}`}
           >
-            {item.label}
+            {item.kind === 'build' ? `Build ${item.label}` : item.label}
           </span>
           <span className="text-[11.5px] font-semibold">
-            {shortDate(item.date)} · {item.detail}
+            {shortDate(item.date)} · {item.kind === 'build' ? 'Integración' : 'Alta'}
           </span>
         </div>
       ))}

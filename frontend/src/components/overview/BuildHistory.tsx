@@ -59,7 +59,7 @@ export function BuildHistory({ items }: BuildHistoryProps) {
                     {buildLabel(item.build)}
                   </BuildChip>
                   <span className="text-xs font-semibold text-ink-muted">
-                    {item.build.releasedAt && shortDate(item.build.releasedAt)}
+                    {shortDate(item.build.releasedAt ?? item.build.plannedFor ?? '')}
                     {planned && ' · en preparación'}
                   </span>
                 </div>
