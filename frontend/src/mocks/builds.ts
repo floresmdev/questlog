@@ -33,6 +33,12 @@ export const builds: Build[] = [
     releasedAt: '2026-08-29T18:00:00-06:00',
     notes: '',
   },
+  {
+    id: 'b-083',
+    version: 'v0.8.3',
+    buildNumber: 165,
+    plannedFor: null,
+    releasedAt: '2026-08-15T18:00:00-06:00',
+    notes: '',
+  },
 ];
-
-export const currentBuildId = 'b-090';

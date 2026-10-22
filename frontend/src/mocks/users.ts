@@ -106,5 +106,5 @@ export const users: User[] = [
   },
 ];
 
-/** The logged-in user. */
+/** The logged-in user until phase 2b adds sessions (backend: `DEV_USER_EMAIL`). */
 export const currentUserId = 'u-gm';

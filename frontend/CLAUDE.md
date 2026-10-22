@@ -6,20 +6,20 @@ Stack, commands, Node version: [README.md](README.md). Root rules: [../CLAUDE.md
 
 - `main.tsx` — imports fonts, mounts `<App>` in `BrowserRouter`.
 - `App.tsx` — routes: `/overview`, `/tasks`, `*` → `/overview`; all under `AppLayout`.
-- `api/` — data access layer (see below). `types.ts` mirrors HANDOFF §3, camelCased (not yet updated to the final §3 schema).
-- `mocks/` — sample data from the design refs. `dashboard.ts` = pre-aggregated stats.
+- `api/` — data access layer (see below). `types.ts` mirrors HANDOFF §3, camelCased.
+- `mocks/` — dev dataset (64 tasks; design cards first). The backend seed loads the same files, so edit data here.
 - `pages/` — one file per route; fetch data, compose components.
 - `components/layout/` — `AppLayout`, `Sidebar*`, `TopBar`, `CurrentBuildCard`.
 - `components/ui/` — generic primitives (`Panel`, `Tag`, `Avatar`, `icons`, …).
 - `components/shared/` — widgets used on both screens (`StatCard`, `RecentActivity`).
 - `components/tasks/`, `components/overview/` — screen-specific widgets.
 - `hooks/` — `useApi` (call + loading/error state), `useCurrentUser` (outlet context).
-- `lib/` — `now.ts`, `styles.ts`, `format.ts`, `calendar.ts`, `percent.ts`, `app.ts` (`GAME_NAME`).
+- `lib/` — `now.ts`, `styles.ts`, `format.ts`, `calendar.ts`, `percent.ts`, `activity.ts` (event → Spanish sentence), `app.ts` (`GAME_NAME`).
 
 ## API layer
 
 - `api/client.ts` — `QuestlogApi` interface; one method per future `GET /api/*` endpoint (path in a trailing comment).
-- `api/mockClient.ts` — `mockApi` implements it over `mocks/`; helper lookups stand in for SQL joins.
+- `api/mockClient.ts` — `mockApi` implements it over `mocks/`, computing every stat with the same rules as the backend SQL (rolling 7-day "this week", Monday weeks, `APP_TIMEZONE`).
 - `api/index.ts` — `export const api: QuestlogApi = mockApi;` — the single switch point.
 - Switch clients (phase 2a): `httpClient.ts` implements `QuestlogApi` with `fetch('/api/…')`; `index.ts` picks it via `VITE_API_MODE=mock|http` (default `mock`). Nothing else should change.
 - Components/pages import `api` and types from `../api` only — never from `mocks/`, never `fetch` directly.
@@ -35,7 +35,7 @@ Stack, commands, Node version: [README.md](README.md). Root rules: [../CLAUDE.md
 
 ## Time
 
-- `lib/now.ts` exports `APP_NOW` (2026-09-28 16:20). Use it for every "today"/relative date — never `new Date()` directly. Becomes `new Date()` when real data lands.
+- `lib/now.ts` exports `APP_NOW` (Mon 2026-09-28 16:20, Mexico City) and `APP_TIMEZONE`. Use them for every "today"/relative date — never `new Date()` directly. Becomes `new Date()` in phase 3.
 
 ## Adding a page
 
